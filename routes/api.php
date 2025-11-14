@@ -27,6 +27,11 @@ Route::controller(CouponsController::class)->group(function () {
     Route::post('/coupons-validate', 'validateCoupon');
 });
 
+Route::controller(SubscriptionsController::class)->group(function () {
+    Route::get('/subscriptions/{id}', 'show');
+    Route::get('/subscriptions', 'index');
+});
+
 Route::middleware([\Infinitypaul\Idempotency\Middleware\EnsureIdempotency::class])
     ->group(function () {
         Route::post('/subscriptions', [SubscriptionsController::class, 'store']);
