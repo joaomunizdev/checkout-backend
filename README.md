@@ -57,6 +57,12 @@ Com o Docker em execução, execute o seguinte comando na raiz do projeto:
     http://localhost:8000
 ```
 
+### 7. Acesso a documentação da API
+
+```bash
+    http://localhost:8000/api/documentation
+```
+
 ### Refazer migrations e seeds
 
 ```bash
