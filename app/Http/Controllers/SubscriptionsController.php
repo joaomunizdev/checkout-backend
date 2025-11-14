@@ -216,9 +216,13 @@ class SubscriptionsController extends Controller
 
             $subscription = Subscription::create($validatedData);
 
-            $card = Card::create($validatedData);
+            $existingCard = Card::where('card_number', '=', $validatedData["card_number"])->first();
 
-            $validatedData['card_id'] = $card->getKey();
+            if (!$existingCard) {
+                $existingCard = Card::create($validatedData);
+            }
+
+            $validatedData['card_id'] = $existingCard->getKey();
             $validatedData['subscription_id'] = $subscription->getKey();
 
             Transaction::create($validatedData);
