@@ -4,7 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OA;
 
+/**
+ * @OA\Schema(
+ * schema="Card",
+ * title="Card (Complete Model)",
+ * description="Card Model (includes sensitive data)",
+ * @OA\Property(property="id", type="integer"),
+ * @OA\Property(property="card_number", type="string"),
+ * @OA\Property(property="client_name", type="string"),
+ * @OA\Property(property="expire_date", type="string", format="date"),
+ * @OA\Property(property="cvc", type="string"),
+ * @OA\Property(property="card_flag_id", type="integer")
+ * )
+ */
 class Card extends Model
 {
     protected $fillable = [

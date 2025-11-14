@@ -4,7 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OA;
 
+/**
+ * @OA\Schema(
+ * schema="Coupon",
+ * title="Coupon",
+ * description="Discount Coupon Model",
+ * @OA\Property(property="id", type="integer", example=1),
+ * @OA\Property(property="name", type="string", description="The coupon code", example="SAVE30"),
+ * @OA\Property(property="plan_id", type="integer", nullable=true, description="Specific plan ID (null for global)", example=1),
+ * @OA\Property(property="expiration_days", type="integer", nullable=true, description="Days to expire (null for never)", example=5),
+ * @OA\Property(property="amount_of_uses", type="integer", description="Total number of uses allowed", example=2),
+ * @OA\Property(property="discount_percent", type="number", format="float", nullable=true, example=20.0),
+ * @OA\Property(property="discount_amount", type="number", format="float", nullable=true, example=30.00)
+ * )
+ */
 class Coupon extends Model
 {
     protected $fillable = [

@@ -5,6 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use OA;
+
+/**
+ * @OA\Schema(
+ * schema="Subscription",
+ * title="Subscription",
+ * description="Subscription Data",
+ * @OA\Property(property="id", type="integer", example=1),
+ * @OA\Property(property="plan_id", type="integer", example=1),
+ * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+ * @OA\Property(property="coupon_id", type="integer", nullable=true, example=1),
+ * @OA\Property(property="created_at", type="string", format="date-time"),
+ * @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 
 class Subscription extends Model
 {

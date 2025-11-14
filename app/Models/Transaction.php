@@ -4,7 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OA;
 
+/**
+ * @OA\Schema(
+ * schema="Transaction",
+ * title="Transaction",
+ * description="Transaction Model (Payment Record)",
+ * @OA\Property(property="id", type="integer", example=1),
+ * @OA\Property(property="card_id", type="integer", example=1),
+ * @OA\Property(property="plan_id", type="integer", example=1),
+ * @OA\Property(property="coupon_id", type="integer", nullable=true, example=1),
+ * @OA\Property(property="subscription_id", type="integer", example=1),
+ * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+ * @OA\Property(property="created_at", type="string", format="date-time"),
+ * @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class Transaction extends Model
 {
     protected $fillable = [
