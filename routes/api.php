@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CardFlagsController;
 use App\Http\Controllers\CouponsController;
 use App\Http\Controllers\PlansController;
+use App\Http\Controllers\SubscriptionsController;
 
 Route::get('/', function () {
     return ["Checkout API ON..."];
@@ -23,4 +24,9 @@ Route::controller(CardFlagsController::class)->group(function () {
 Route::controller(CouponsController::class)->group(function () {
     Route::get('/coupons/{id}', 'showByPlanId');
     Route::get('/coupons', 'index');
+    Route::post('/coupons-validate', 'validateCoupon');
+});
+
+Route::controller(SubscriptionsController::class)->group(function () {
+    Route::post('/subscriptions', 'store');
 });
