@@ -28,6 +28,7 @@ Route::controller(CouponsController::class)->group(function () {
 });
 
 Route::controller(SubscriptionsController::class)->group(function () {
+    Route::get('/subscriptions/create', 'create');
     Route::get('/subscriptions/{id}', 'show');
     Route::get('/subscriptions', 'index');
 });
