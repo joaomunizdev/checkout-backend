@@ -9,20 +9,14 @@ class Transaction extends Model
 {
     protected $fillable = [
         'card_id',
-        'plan_id',
-        'coupon_id',
         'subscription_id',
-        'email',
     ];
 
     protected function casts(): array
     {
         return [
             'card_id' => 'integer',
-            'plan_id' => 'integer',
-            'coupon_id' => 'integer',
             'subscription_id' => 'integer',
-            'email' => 'string',
         ];
     }
 
