@@ -7,6 +7,9 @@ use App\Models\CardFlag;
 class CardFlagsController extends Controller
 {
 
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $cardFlags = CardFlag::all();
