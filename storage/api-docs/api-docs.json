@@ -1,0 +1,779 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Checkout API Documentation",
+        "description": "Checkout API Swagger OpenApi",
+        "contact": {
+            "email": "jpedro747.jp@gmail.com"
+        },
+        "version": "1.0.0",
+        "x-logo": {
+            "url": "https://via.placeholder.com/190x90.png?text=L5-Swagger"
+        }
+    },
+    "paths": {
+        "/api/card-flags": {
+            "get": {
+                "tags": [
+                    "CardFlags"
+                ],
+                "summary": "List all card brands",
+                "description": "Retrieves a complete list of all available card brands.",
+                "operationId": "1a251522c50244b43197dff6256f6a3c",
+                "responses": {
+                    "200": {
+                        "description": "A list of card brands",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CardFlag"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/card-flags/{id}": {
+            "get": {
+                "tags": [
+                    "CardFlags"
+                ],
+                "summary": "Get a specific card brand by ID",
+                "description": "Retrieves the details of a single card brand by its unique ID.",
+                "operationId": "ecf32cd5fa8fbb7db1c3c68bafc958df",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the card brand",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The card brand details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CardFlag"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                    }
+                }
+            }
+        },
+        "/api/coupons": {
+            "get": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "List all coupons",
+                "description": "Retrieves a complete list of all available coupons in the system.",
+                "operationId": "604737e7b2bc9f1cf60f74f3e9d3d52e",
+                "responses": {
+                    "200": {
+                        "description": "A list of all coupons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Coupon"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coupons/{id}": {
+            "get": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Get coupons applicable to a specific plan",
+                "description": "Finds coupons that are either specific to the given Plan ID or are global (plan_id = null). Note: The {id} in the path refers to the Plan ID.",
+                "operationId": "14506a77d22ace01a14c5e6820bcaaeb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the Plan to check for coupons",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of applicable coupons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Coupon"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coupons-validate": {
+            "post": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Validate a coupon",
+                "description": "Checks if a coupon is valid based on its code, associated plan, expiration, and usage limits.",
+                "operationId": "f12b3be9ca3540427c60ea2d74c1bd7a",
+                "requestBody": {
+                    "description": "Coupon and Plan ID to validate",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CouponValidationPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Coupon is valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CouponValidationSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or coupon is invalid (expired, limit reached, etc.)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans": {
+            "get": {
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "List all plans",
+                "description": "Retrieves a complete list of all available subscription plans.",
+                "operationId": "907c24d149908106557dca8d36e8c11a",
+                "responses": {
+                    "200": {
+                        "description": "A list of plans",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Plan"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans/{id}": {
+            "get": {
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Get a specific plan by ID",
+                "description": "Retrieves the details of a single plan by its unique ID.",
+                "operationId": "f4c9eaa3c265605179b7abdaf1f6a085",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the plan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The plan details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Plan"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                    }
+                }
+            }
+        },
+        "/api/subscriptions": {
+            "get": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "summary": "List all subscriptions",
+                "description": "Returns a list of all subscriptions with their relationships.",
+                "operationId": "a57381ef1031fcbb133278a38ec4138c",
+                "responses": {
+                    "200": {
+                        "description": "Subscription list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SubscriptionWithRelations"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "summary": "Create a new subscription (Checkout)",
+                "description": "It receives the plan, customer, and card details; validates the coupon; processes the payment; and creates the subscription, card, and transaction.",
+                "operationId": "0fed2b35010e282f6ccc656ac915f78b",
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Subscription and payment details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreSubscriptionPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Signature created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Subscription"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error, payment failure, missing Idempotency-Key, duplicate Idempotency-Key validation, and coupon verification.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscriptions/create": {
+            "get": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "summary": "Shows the payload format for creating a signature.",
+                "description": "Returns a sample JSON showing the fields required for the endpoint. 'store'.",
+                "operationId": "f45274a433552cd025e3c7ce4e7b9756",
+                "responses": {
+                    "200": {
+                        "description": "Payload example",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payload_format": {
+                                            "properties": {
+                                                "coupon": {
+                                                    "type": "string",
+                                                    "example": "SAVE30"
+                                                },
+                                                "plan_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "email@example.com"
+                                                },
+                                                "card_number": {
+                                                    "type": "string",
+                                                    "example": "5555444433332222"
+                                                },
+                                                "client_name": {
+                                                    "type": "string",
+                                                    "example": "JOAO DA SILVA"
+                                                },
+                                                "expire_date": {
+                                                    "type": "string",
+                                                    "example": "12/28"
+                                                },
+                                                "cvc": {
+                                                    "type": "string",
+                                                    "example": "123"
+                                                },
+                                                "card_flag_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscriptions/{id}": {
+            "get": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "summary": "Search for a specific subscription",
+                "description": "Returns the data for a subscription and its relationships..",
+                "operationId": "9f5f8baf2f2e4388c9751660f0e683dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Subscription ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subscription details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CouponValidationPayload": {
+                "title": "Coupon Validation Payload",
+                "description": "Payload required to validate a coupon",
+                "required": [
+                    "coupon",
+                    "plan_id"
+                ],
+                "properties": {
+                    "coupon": {
+                        "description": "The coupon code to validate",
+                        "type": "string",
+                        "example": "SAVE30"
+                    },
+                    "plan_id": {
+                        "description": "The ID of the plan this coupon will be applied to",
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "CouponValidationSuccess": {
+                "title": "Coupon Validation Success",
+                "description": "Successful response for a valid coupon",
+                "properties": {
+                    "valid": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Valid coupon!"
+                    }
+                },
+                "type": "object"
+            },
+            "CardResponse": {
+                "title": "Card",
+                "description": "Card details (partial, no sensitive data)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "example": "JOAO DA SILVA"
+                    },
+                    "expire_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2028-12-31"
+                    },
+                    "card_flag_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "SubscriptionWithRelations": {
+                "title": "Subscription",
+                "description": "Subscription with all related details (plan, coupon, transaction)",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Subscription"
+                    },
+                    {
+                        "properties": {
+                            "plan": {
+                                "$ref": "#/components/schemas/Plan"
+                            },
+                            "coupon": {
+                                "$ref": "#/components/schemas/Coupon"
+                            },
+                            "transaction": {
+                                "$ref": "#/components/schemas/Transaction"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ErrorResponse": {
+                "title": "Error Response",
+                "description": "Standard error response for 422",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Payment declined."
+                    }
+                },
+                "type": "object"
+            },
+            "StoreSubscriptionPayload": {
+                "title": "Subscription Creation Payload",
+                "description": "Full payload for the checkout endpoint.",
+                "required": [
+                    "plan_id",
+                    "email",
+                    "card_number",
+                    "client_name",
+                    "expire_date",
+                    "cvc",
+                    "card_flag_id"
+                ],
+                "properties": {
+                    "coupon": {
+                        "type": "string",
+                        "example": "OFF10",
+                        "nullable": true
+                    },
+                    "plan_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "card_number": {
+                        "description": "Credit card number (12-19 digits)",
+                        "type": "string",
+                        "example": "5555444433332222"
+                    },
+                    "client_name": {
+                        "description": "Name printed on card",
+                        "type": "string",
+                        "example": "JOAO DA SILVA"
+                    },
+                    "expire_date": {
+                        "description": "MM/YY",
+                        "type": "string",
+                        "example": "12/28"
+                    },
+                    "cvc": {
+                        "description": "CVC/CVV (3-4 digits)",
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "card_flag_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "Card": {
+                "title": "Card (Complete Model)",
+                "description": "Card Model (includes sensitive data)",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "card_number": {
+                        "type": "string"
+                    },
+                    "client_name": {
+                        "type": "string"
+                    },
+                    "expire_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "cvc": {
+                        "type": "string"
+                    },
+                    "card_flag_id": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "CardFlag": {
+                "title": "CardFlag",
+                "description": "Card Brand",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Visa"
+                    }
+                },
+                "type": "object"
+            },
+            "Coupon": {
+                "title": "Coupon",
+                "description": "Discount Coupon Model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "The coupon code",
+                        "type": "string",
+                        "example": "SAVE30"
+                    },
+                    "plan_id": {
+                        "description": "Specific plan ID (null for global)",
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "expiration_days": {
+                        "description": "Days to expire (null for never)",
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "amount_of_uses": {
+                        "description": "Total number of uses allowed",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "discount_percent": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 20,
+                        "nullable": true
+                    },
+                    "discount_amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 30,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Plan": {
+                "title": "Plan",
+                "description": "Plan Model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "Name of the plan",
+                        "type": "string",
+                        "example": "PRO_MONTHLY"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 99.9
+                    },
+                    "periodicity": {
+                        "description": "Plan duration in days",
+                        "type": "integer",
+                        "example": 30
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "Subscription": {
+                "title": "Subscription",
+                "description": "Subscription Data",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "plan_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "coupon_id": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Transaction": {
+                "title": "Transaction",
+                "description": "Transaction Model (Payment Record)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "card_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "plan_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "coupon_id": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "subscription_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "CardFlags",
+            "description": "Endpoints for retrieving card brands (e.g., Visa, Mastercard)"
+        },
+        {
+            "name": "Coupons",
+            "description": "Endpoints for managing and validating discount coupons"
+        },
+        {
+            "name": "Plans",
+            "description": "Endpoints for retrieving subscription plans"
+        },
+        {
+            "name": "Subscriptions",
+            "description": "Endpoints for creating and managing subscriptions and payments."
+        }
+    ]
+}
