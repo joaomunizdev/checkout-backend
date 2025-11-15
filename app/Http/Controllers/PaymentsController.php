@@ -154,9 +154,8 @@ class PaymentsController extends Controller
 
             if ($payment["status"]) {
                 $validatedData["status"] = true;
+                $subscription->update(['active' => true]);
             }
-
-            $subscription->update(['active' => true]);
 
             $transaction = Transaction::create($validatedData);
 
