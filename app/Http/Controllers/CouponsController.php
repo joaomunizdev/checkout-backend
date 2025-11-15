@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Coupon;
-use App\Models\Plan;
-use App\Models\Subscription;
 use App\Services\CouponService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use OA;
 
