@@ -108,6 +108,12 @@ Com o Docker em execução, execute o seguinte comando na raiz do projeto:
     http://localhost:8000/api/documentation
 ```
 
+### Rodar testes
+
+```bash
+   docker compose exec app php artisan test
+```
+
 ### Refazer migrations e seeds
 
 ```bash
