@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use OA; // <-- Importado
+use OA;
 
 /**
  * @OA\Tag(
@@ -152,8 +152,9 @@ class PaymentsController extends Controller
                 $validatedData['card_number'],
             );
 
+            $validatedData['status'] = $payment['status'];
+
             if ($payment["status"]) {
-                $validatedData["status"] = true;
                 $subscription->update(['active' => true]);
             }
 
