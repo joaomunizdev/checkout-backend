@@ -34,7 +34,7 @@ class CouponsControllerTest extends TestCase
         // Cupom global
         Coupon::factory()->create(['plan_id' => null]);
         // Cupom específico do plano
-        Coupon::factory()->create(['plan_id' => $this->plan->id]);
+        Coupon::factory()->create(['plan_id' => $this->plan->getKey()]);
         // Cupom de outro plano
         Coupon::factory()->create(['plan_id' => Plan::factory()->create()->id]);
 
@@ -48,12 +48,12 @@ class CouponsControllerTest extends TestCase
     {
         Coupon::factory()->create([
             'name' => 'VALID',
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
         ]);
 
         $response = $this->postJson('/api/coupons-validate', [
             'coupon' => 'VALID',
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
         ]);
 
         $response->assertStatus(200)
@@ -67,7 +67,7 @@ class CouponsControllerTest extends TestCase
     {
         $response = $this->postJson('/api/coupons-validate', [
             'coupon' => 'INVALID',
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
         ]);
 
         $response->assertStatus(422)

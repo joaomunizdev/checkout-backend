@@ -29,12 +29,12 @@ class PaymentsControllerTest extends TestCase
     private function getPayload(array $overrides = []): array
     {
         return array_merge([
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->getKey(),
             'card_number' => '5555444433332222',
             'client_name' => 'JOAO DA SILVA',
             'expire_date' => '12/28',
             'cvc' => '123',
-            'card_flag_id' => $this->cardFlag->id,
+            'card_flag_id' => $this->cardFlag->getKey(),
         ], $overrides);
     }
 
@@ -55,12 +55,12 @@ class PaymentsControllerTest extends TestCase
             ->assertJson(['status' => true]);
 
         $this->assertDatabaseHas('transactions', [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->getKey(),
             'status' => true,
         ]);
 
         $this->assertDatabaseHas('subscriptions', [
-            'id' => $this->subscription->id,
+            'id' => $this->subscription->getKey(),
             'active' => true,
         ]);
     }
@@ -75,12 +75,12 @@ class PaymentsControllerTest extends TestCase
             ->assertJson(['status' => false]);
 
         $this->assertDatabaseHas('transactions', [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->getKey(),
             'status' => false,
         ]);
 
         $this->assertDatabaseHas('subscriptions', [
-            'id' => $this->subscription->id,
+            'id' => $this->subscription->getKey(),
             'active' => false,
         ]);
     }

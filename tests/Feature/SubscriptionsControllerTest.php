@@ -26,7 +26,7 @@ class SubscriptionsControllerTest extends TestCase
     private function getPayload(array $overrides = []): array
     {
         return array_merge([
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
             'email' => 'test@example.com',
             'coupon' => null,
         ], $overrides);
@@ -47,7 +47,7 @@ class SubscriptionsControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJson([
-                'plan_id' => $this->plan->id,
+                'plan_id' => $this->plan->getKey(),
                 'email' => 'test@example.com',
                 'price_paid' => 100.00,
             ]);
@@ -59,7 +59,7 @@ class SubscriptionsControllerTest extends TestCase
     {
         Coupon::factory()->create([
             'name' => 'PERC30',
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
             'discount_percent' => 30,
         ]);
 

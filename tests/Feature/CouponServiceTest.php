@@ -31,19 +31,19 @@ class CouponServiceTest extends TestCase
             'plan_id' => null,
         ]);
 
-        $result = $this->service->validate('GLOBAL', $this->plan->id);
-        $this->assertEquals($coupon->id, $result->id);
+        $result = $this->service->validate('GLOBAL', $this->plan->getKey());
+        $this->assertEquals($coupon->id, $result->getKey());
     }
 
     public function test_it_validates_a_valid_plan_specific_coupon(): void
     {
         $coupon = Coupon::factory()->create([
             'name' => 'SPECIFIC',
-            'plan_id' => $this->plan->id,
+            'plan_id' => $this->plan->getKey(),
         ]);
 
         $result = $this->service->validate('SPECIFIC', $this->plan->id);
-        $this->assertEquals($coupon->id, $result->id);
+        $this->assertEquals($coupon->id, $result->getKey());
     }
 
     public function test_it_rejects_a_coupon_for_a_different_plan(): void
@@ -57,7 +57,7 @@ class CouponServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid coupon!');
 
-        $this->service->validate('SPECIFIC', $this->plan->id);
+        $this->service->validate('SPECIFIC', $this->plan->getKey());
     }
 
     public function test_it_rejects_a_non_existent_coupon(): void
@@ -65,7 +65,7 @@ class CouponServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid coupon!');
 
-        $this->service->validate('BOGUS', $this->plan->id);
+        $this->service->validate('BOGUS', $this->plan->getKey());
     }
 
     public function test_it_rejects_an_expired_coupon(): void
@@ -80,7 +80,7 @@ class CouponServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid coupon!');
 
-        $this->service->validate('EXPIRED', $this->plan->id);
+        $this->service->validate('EXPIRED', $this->plan->getKey());
     }
 
     public function test_it_rejects_a_coupon_that_has_reached_its_usage_limit(): void
@@ -95,7 +95,7 @@ class CouponServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid coupon!');
 
-        $this->service->validate('USED_UP', $this->plan->id);
+        $this->service->validate('USED_UP', $this->plan->getKey());
     }
 
     public function test_it_validates_a_coupon_under_its_usage_limit(): void
@@ -107,7 +107,7 @@ class CouponServiceTest extends TestCase
 
         Subscription::factory()->create(['coupon_id' => $coupon->id]);
 
-        $result = $this->service->validate('ONE_LEFT', $this->plan->id);
-        $this->assertEquals($coupon->id, $result->id);
+        $result = $this->service->validate('ONE_LEFT', $this->plan->getKey());
+        $this->assertEquals($coupon->id, $result->getKey());
     }
 }
