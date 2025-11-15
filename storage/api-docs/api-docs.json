@@ -177,6 +177,125 @@
                 }
             }
         },
+        "/api/payments/create": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Shows the payload format for creating a payment",
+                "description": "Returns an example JSON payload showing the fields required for the 'store' endpoint.",
+                "operationId": "8885984a4a8e9a915705ff1bddf40e5b",
+                "responses": {
+                    "200": {
+                        "description": "Example payload format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payload_format": {
+                                            "properties": {
+                                                "subscription_id": {
+                                                    "type": "string",
+                                                    "example": "Subscription ID"
+                                                },
+                                                "card_number": {
+                                                    "type": "string",
+                                                    "example": "5555444433332222"
+                                                },
+                                                "client_name": {
+                                                    "type": "string",
+                                                    "example": "NAME AS IT APPEARS ON THE CARD"
+                                                },
+                                                "expire_date": {
+                                                    "type": "string",
+                                                    "example": "12/28"
+                                                },
+                                                "cvc": {
+                                                    "type": "string",
+                                                    "example": "123"
+                                                },
+                                                "card_flag_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payments": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Processes a new payment for a subscription",
+                "description": "Receives payment details, processes it through the simulated gateway, and creates a card and transaction record.",
+                "operationId": "d36e2be5fe281b6d1586dd9ce1306ab5",
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Payment details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payment processed successfully, transaction created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Transaction"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or payment denied by gateway",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subscription not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/plans": {
             "get": {
                 "tags": [
@@ -345,26 +464,6 @@
                                                 "email": {
                                                     "type": "string",
                                                     "example": "email@example.com"
-                                                },
-                                                "card_number": {
-                                                    "type": "string",
-                                                    "example": "5555444433332222"
-                                                },
-                                                "client_name": {
-                                                    "type": "string",
-                                                    "example": "JOAO DA SILVA"
-                                                },
-                                                "expire_date": {
-                                                    "type": "string",
-                                                    "example": "12/28"
-                                                },
-                                                "cvc": {
-                                                    "type": "string",
-                                                    "example": "123"
-                                                },
-                                                "card_flag_id": {
-                                                    "type": "integer",
-                                                    "example": 1
                                                 }
                                             },
                                             "type": "object"
@@ -453,6 +552,50 @@
                 },
                 "type": "object"
             },
+            "PaymentPayload": {
+                "title": "Payment Payload",
+                "description": "Payload required to process a new payment",
+                "required": [
+                    "subscription_id",
+                    "card_number",
+                    "client_name",
+                    "expire_date",
+                    "cvc",
+                    "card_flag_id"
+                ],
+                "properties": {
+                    "subscription_id": {
+                        "description": "ID of the subscription being paid for",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "card_number": {
+                        "description": "Credit card number (12-19 digits)",
+                        "type": "string",
+                        "example": "5555444433332222"
+                    },
+                    "client_name": {
+                        "description": "Name as it appears on the card",
+                        "type": "string",
+                        "example": "JOAO DA SILVA"
+                    },
+                    "expire_date": {
+                        "description": "MM/YY",
+                        "type": "string",
+                        "example": "12/28"
+                    },
+                    "cvc": {
+                        "description": "CVC/CVV (3-4 digits)",
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "card_flag_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
             "CardResponse": {
                 "title": "Card",
                 "description": "Card details (partial, no sensitive data)",
@@ -518,11 +661,7 @@
                 "required": [
                     "plan_id",
                     "email",
-                    "card_number",
-                    "client_name",
-                    "expire_date",
-                    "cvc",
-                    "card_flag_id"
+                    "price_paid"
                 ],
                 "properties": {
                     "coupon": {
@@ -538,30 +677,6 @@
                         "type": "string",
                         "format": "email",
                         "example": "user@example.com"
-                    },
-                    "card_number": {
-                        "description": "Credit card number (12-19 digits)",
-                        "type": "string",
-                        "example": "5555444433332222"
-                    },
-                    "client_name": {
-                        "description": "Name printed on card",
-                        "type": "string",
-                        "example": "JOAO DA SILVA"
-                    },
-                    "expire_date": {
-                        "description": "MM/YY",
-                        "type": "string",
-                        "example": "12/28"
-                    },
-                    "cvc": {
-                        "description": "CVC/CVV (3-4 digits)",
-                        "type": "string",
-                        "example": "123"
-                    },
-                    "card_flag_id": {
-                        "type": "integer",
-                        "example": 1
                     }
                 },
                 "type": "object"
@@ -665,6 +780,11 @@
                         "type": "string",
                         "example": "PRO_MONTHLY"
                     },
+                    "description": {
+                        "description": "Description of the plan",
+                        "type": "string",
+                        "example": "Pro Anual"
+                    },
                     "price": {
                         "type": "number",
                         "format": "float",
@@ -703,6 +823,15 @@
                         "type": "integer",
                         "example": 1,
                         "nullable": true
+                    },
+                    "price_paid": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 99.9
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "example": true
                     },
                     "created_at": {
                         "type": "string",
@@ -766,6 +895,10 @@
         {
             "name": "Coupons",
             "description": "Endpoints for managing and validating discount coupons"
+        },
+        {
+            "name": "Payments",
+            "description": "Endpoints for processing subsequent payments on existing subscriptions"
         },
         {
             "name": "Plans",
