@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use OA;
@@ -22,6 +23,8 @@ use OA;
  */
 class Coupon extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'plan_id',
