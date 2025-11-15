@@ -9,6 +9,51 @@ Este guia descreve como executar este projeto utilizando um ambiente de desenvol
 
 ---
 
+## Tecnologias
+
+-   **Laravel** (Eloquent, validação, rotas, container)
+-   **Docker / Docker Compose** para ambiente de desenvolvimento
+-   **OpenAPI/Swagger** via `l5-swagger`
+-   **Idempotência** com `infinitypaul/laravel-idempotency`
+-   **Carbon** para datas
+
+---
+
+## Arquitetura e Trade-offs
+
+### Camada de Serviços
+
+-   `CouponService` e `PaymentGatewayService` concentram a lógica de negócios.
+-   **Trade-off positivo:** Controllers mais simples e código facilmente testável.
+-   **Trade-off positivo:** Gateway simulado acelera desenvolvimento e pode ser trocado por um real sem alterar controllers.
+
+### Idempotência
+
+-   Endpoints de escrita exigem `Idempotency-Key`.
+-   **Trade-off positivo:** Evita cobranças duplicadas.
+-   **Trade-off negativo:** Client precisa gerar e controlar as chaves.
+
+### Transações
+
+-   Processos de assinatura e pagamento usam transações de banco.
+-   **Trade-off positivo:** Consistência garantida — falhou, volta tudo.
+
+### Validação de Cartão e Assinatura
+
+-   Impede pagamento em assinaturas já ativas e reutiliza cartões armazenados.
+-   **Trade-off positivo:** Evita duplicações e operações inválidas.
+-   **Trade-off de simplificação:** Armazenar número completo do cartão é apenas para simulação e não é seguro para produção.
+
+---
+
+## Testes Automatizados
+
+-   **Unit Tests**: validam a lógica dos serviços.
+-   **Feature Tests**: validam rotas e controllers.
+-   Requer **Factories** para `Plan`, `Coupon`, `Subscription`, `Card`, etc.
+
+---
+
 ## Guia de Instalação e Execução
 
 Siga estes passos para configurar e levantar o ambiente de desenvolvimento.
