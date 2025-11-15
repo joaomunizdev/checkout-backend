@@ -11,8 +11,9 @@ Este guia descreve como executar este projeto utilizando um ambiente de desenvol
 
 ## Tecnologias
 
--   **Laravel** (Eloquent, validação, rotas, container)
--   **Docker / Docker Compose** para ambiente de desenvolvimento
+-   **PHP (v8.4)**
+-   **Laravel (v12)** (Eloquent, validação, rotas, container)
+-   **Docker(v29.0.1^) / Docker Compose(v2.40.3^)** para ambiente de desenvolvimento
 -   **OpenAPI/Swagger** via `l5-swagger`
 -   **Idempotência** com `infinitypaul/laravel-idempotency`
 -   **Carbon** para datas
