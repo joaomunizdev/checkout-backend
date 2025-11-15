@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CardFlagsController;
 use App\Http\Controllers\CouponsController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\SubscriptionsController;
 
@@ -37,3 +38,13 @@ Route::middleware([\Infinitypaul\Idempotency\Middleware\EnsureIdempotency::class
     ->group(function () {
         Route::post('/subscriptions', [SubscriptionsController::class, 'store']);
     });
+
+Route::middleware([\Infinitypaul\Idempotency\Middleware\EnsureIdempotency::class])
+    ->group(function () {
+        Route::post('/payments', [PaymentsController::class, 'store']);
+    });
+
+
+Route::controller(PaymentsController::class)->group(function () {
+    Route::get('/payments/create', 'create');
+});
