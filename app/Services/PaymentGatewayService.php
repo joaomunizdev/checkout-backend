@@ -8,32 +8,37 @@ class PaymentGatewayService
 {
     public function processPayment(string $cardNumber): array
     {
+
         $firstDigit = substr($cardNumber, 0, 1);
 
+        $errorResponse = [
+            'status' => false,
+            'message' => 'Payment declined.'
+        ];
+
+        $approvedResponse = [
+            'status' => true,
+            'message' => 'Payment approved.'
+        ];
+
         if ($firstDigit === '5') {
-            return [
-                'status' => 'approved',
-                'message' => 'Payment approved.'
-            ];
+            return $approvedResponse;
         }
 
         if ($firstDigit === '4') {
-            throw new Exception('Payment declined.');
+            return $errorResponse;
         }
 
         if ($firstDigit === '3') {
             $randomPercent = rand(1, 100);
 
             if ($randomPercent <= 70) {
-                return [
-                    'status' => 'approved',
-                    'message' => 'Payment approved.'
-                ];
+                return $approvedResponse;
             } else {
-                throw new Exception('Payment declined.');
+                return $errorResponse;
             }
         }
 
-        throw new Exception('Payment error on gateway...');
+        return $errorResponse;
     }
 }
