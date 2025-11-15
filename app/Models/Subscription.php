@@ -16,6 +16,8 @@ use OA;
  * @OA\Property(property="plan_id", type="integer", example=1),
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
  * @OA\Property(property="coupon_id", type="integer", nullable=true, example=1),
+ * @OA\Property(property="price_paid", type="number", format="float", example=99.90),
+ * @OA\Property(property="active", type="boolean", example=true),
  * @OA\Property(property="created_at", type="string", format="date-time"),
  * @OA\Property(property="updated_at", type="string", format="date-time")
  * )
@@ -27,6 +29,8 @@ class Subscription extends Model
         'plan_id',
         'coupon_id',
         'email',
+        'active',
+        'price_paid',
     ];
 
     protected function casts(): array
@@ -35,6 +39,8 @@ class Subscription extends Model
             'plan_id' => 'integer',
             'coupon_id' => 'integer',
             'email' => 'string',
+            'active' => 'boolean',
+            'price_paid' => 'float'
         ];
     }
 

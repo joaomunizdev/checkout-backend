@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Card;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Models\Transaction;
 use App\Services\CouponService;
-use App\Services\PaymentGatewayService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use OA;
@@ -55,15 +51,10 @@ use Exception;
  * schema="StoreSubscriptionPayload",
  * title="Subscription Creation Payload",
  * description="Full payload for the checkout endpoint.",
- * required={"plan_id", "email", "card_number", "client_name", "expire_date", "cvc", "card_flag_id"},
+ * required={"plan_id", "email", "price_paid"},
  * @OA\Property(property="coupon", type="string", nullable=true, example="OFF10"),
  * @OA\Property(property="plan_id", type="integer", example=1),
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
- * @OA\Property(property="card_number", type="string", description="Credit card number (12-19 digits)", example="5555444433332222"),
- * @OA\Property(property="client_name", type="string", description="Name printed on card", example="JOAO DA SILVA"),
- * @OA\Property(property="expire_date", type="string", description="MM/YY", example="12/28"),
- * @OA\Property(property="cvc", type="string", description="CVC/CVV (3-4 digits)", example="123"),
- * @OA\Property(property="card_flag_id", type="integer", example=1)
  * )
  */
 class SubscriptionsController extends Controller
@@ -112,11 +103,6 @@ class SubscriptionsController extends Controller
      * @OA\Property(property="coupon", type="string", example="SAVE30"),
      * @OA\Property(property="plan_id", type="integer", example=1),
      * @OA\Property(property="email", type="string", example="email@example.com"),
-     * @OA\Property(property="card_number", type="string", example="5555444433332222"),
-     * @OA\Property(property="client_name", type="string", example="JOAO DA SILVA"),
-     * @OA\Property(property="expire_date", type="string", example="12/28"),
-     * @OA\Property(property="cvc", type="string", example="123"),
-     * @OA\Property(property="card_flag_id", type="integer", example=1)
      * )
      * )
      * )
@@ -128,11 +114,6 @@ class SubscriptionsController extends Controller
             'coupon' => '(Optional) Coupon code, e.g., "SAVE30"',
             'plan_id' => 'ID (int) of the desired plan',
             'email' => 'email@example.com',
-            'card_number' => '1111222233334444',
-            'client_name' => 'NAME AS IT APPEARS ON THE CARD',
-            'expiration_date' => 'MM/YY (e.g., "28/12")',
-            'cvc' => '123',
-            'card_flag_id' => 'ID (int) of the card brand (e.g., 1 for Visa)',
         ];
 
         return response()->json([
@@ -175,23 +156,28 @@ class SubscriptionsController extends Controller
      * )
      * )
      */
-    public function store(Request $request, CouponService $couponService, PaymentGatewayService $paymentGatewayService)
+    public function store(Request $request, CouponService $couponService)
     {
-        $validatedData = $request->validate([
-            'coupon' => 'string|max:50|:coupons,name',
+        $rules = [
+            'coupon' => 'nullable|string|max:50|exists:coupons,name',
             'plan_id' => 'required|integer|exists:plans,id',
-            'email' => 'required|email',
-            'card_number' => 'required|numeric|digits_between:12,19',
-            'client_name' => 'required|string|max:255',
-            'expire_date' => 'required|string|date_format:m/y',
-            'cvc' => 'required|numeric|digits_between:3,4',
-            'card_flag_id' => 'required|integer|exists:card_flags,id',
-        ]);
+            'email' => 'required|email|unique:subscriptions,email',
+        ];
+
+        $messages = [
+            'email.unique' => 'Este e-mail já possui uma assinatura. Por favor, utilize outro e-mail.',
+        ];
+
+        $validatedData = $request->validate($rules, $messages);
 
         DB::beginTransaction();
 
         try {
             $coupon = null;
+
+            $plan = Plan::findOrFail($validatedData['plan_id']);
+            $planPrice = $plan->price;
+            $pricePaid = null;
 
             if (!empty($validatedData['coupon'])) {
                 $coupon = $couponService->validate(
@@ -199,33 +185,23 @@ class SubscriptionsController extends Controller
                     $validatedData['plan_id']
                 );
 
-                if ($coupon) {
-                    $validatedData['coupon_id'] = $coupon->getKey();
+                $couponId = $coupon->getKey();
+                $validatedData["coupon_id"] = $couponId;
+
+                $discount = 0;
+
+                if ($coupon->discount_percent) {
+                    $discount = $plan->price * $coupon->discount_percent / 100;
+                } elseif ($coupon->discount_amount) {
+                    $discount = min($coupon->discount_amount, $plan->price);
                 }
+
+                $pricePaid = $planPrice - $discount;
             }
 
-            $expireDate = Carbon::createFromFormat('m/y', $validatedData['expire_date'])
-                ->endOfMonth()
-                ->format('Y-m-d');
-
-            $validatedData['expire_date'] = $expireDate;
-
-            $paymentGatewayService->processPayment(
-                $validatedData['card_number'],
-            );
+            $validatedData["price_paid"] = $pricePaid ?? $planPrice;
 
             $subscription = Subscription::create($validatedData);
-
-            $existingCard = Card::where('card_number', '=', $validatedData["card_number"])->first();
-
-            if (!$existingCard) {
-                $existingCard = Card::create($validatedData);
-            }
-
-            $validatedData['card_id'] = $existingCard->getKey();
-            $validatedData['subscription_id'] = $subscription->getKey();
-
-            Transaction::create($validatedData);
 
             DB::commit();
 

@@ -26,6 +26,7 @@ class Transaction extends Model
     protected $fillable = [
         'card_id',
         'subscription_id',
+        'status',
     ];
 
     protected function casts(): array
@@ -33,6 +34,7 @@ class Transaction extends Model
         return [
             'card_id' => 'integer',
             'subscription_id' => 'integer',
+            'status' => 'boolean'
         ];
     }
 

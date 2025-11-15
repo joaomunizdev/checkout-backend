@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
-            $table->float(column: 'price');
+            $table->string('description', 255);
+            $table->float('price');
             $table->integer('periodicity');
             $table->boolean('active');
             $table->timestamps();
