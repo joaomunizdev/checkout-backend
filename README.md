@@ -48,9 +48,7 @@ Este guia descreve como executar este projeto utilizando um ambiente de desenvol
 
 ## Testes Automatizados
 
--   **Unit Tests**: validam a lógica dos serviços.
--   **Feature Tests**: validam rotas e controllers.
--   Requer **Factories** para `Plan`, `Coupon`, `Subscription`, `Card`, etc.
+-   **Unit Tests**: validam a lógica dos serviços, rotas e controllers.
 
 ---
 
