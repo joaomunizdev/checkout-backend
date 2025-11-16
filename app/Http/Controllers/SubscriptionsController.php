@@ -79,11 +79,10 @@ class SubscriptionsController extends Controller
     public function index()
     {
         $subscription = Subscription::with([
-            'transaction' => [
-                'card' => [
-                    'cardFlag',
-                ]
-            ],
+            'transaction' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'transaction.card.cardFlag',
             'plan',
             'coupon'
         ])->get();
@@ -225,11 +224,10 @@ class SubscriptionsController extends Controller
     public function show(int $id)
     {
         $subscription = Subscription::with([
-            'transaction' => [
-                'card' => [
-                    'cardFlag'
-                ]
-            ],
+            'transaction' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'transaction.card.cardFlag',
             'plan',
             'coupon'
         ])->findOrFail($id);
