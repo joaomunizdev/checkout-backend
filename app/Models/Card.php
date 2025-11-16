@@ -50,5 +50,7 @@ class Card extends Model
     protected $hidden = [
         'card_number',
         'expire_date',
+        'created_at',
+        'updated_at',
     ];
 }

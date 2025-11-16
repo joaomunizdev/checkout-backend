@@ -45,7 +45,10 @@ class Coupon extends Model
             'discount_amount' => 'float',
         ];
     }
-
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);

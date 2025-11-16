@@ -30,4 +30,9 @@ class CardFlag extends Model
             'name' => 'string',
         ];
     }
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 }
