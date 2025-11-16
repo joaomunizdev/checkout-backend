@@ -31,8 +31,8 @@ class CouponSeeder extends Seeder
             'plan_id' => $proMonthlyPlan->getKey(),
             'expiration_days' => 5,
             'amount_of_uses' => 2,
-            'discount_percent' => 10,
-            'discount_amount' => null,
+            'discount_percent' => null,
+            'discount_amount' => 30,
         ]);
 
         Coupon::create([
