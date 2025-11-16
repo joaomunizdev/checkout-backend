@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
+use App\Models\Coupon;
+use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Transaction;
 use App\Services\PaymentGatewayService;
@@ -24,11 +26,11 @@ use OA;
  * description="Payload required to process a new payment",
  * required={"subscription_id", "card_number", "client_name", "expire_date", "cvc", "card_flag_id"},
  * @OA\Property(property="subscription_id", type="integer", description="ID of the subscription being paid for", example=1),
- * @OA\Property(property="card_number", type="string", description="Credit card number (12-19 digits)", example="5555444433332222"),
+ * @OA\Property(property="card_number", type="numberic", description="Credit card number (12-19 digits)", example=5555444433332222),
  * @OA\Property(property="client_name", type="string", description="Name as it appears on the card", example="JOAO DA SILVA"),
  * @OA\Property(property="expire_date", type="string", description="MM/YY", example="12/28"),
  * @OA\Property(property="cvc", type="string", description="CVC/CVV (3-4 digits)", example="123"),
- * @OA\Property(property="card_flag_id", type="integer", example=1)
+ * @OA\Property(property="card_flag_id", type="integer", example=1),
  * )
  *
  */
@@ -138,7 +140,7 @@ class PaymentsController extends Controller
                 ->format('Y-m-d');
 
             $validatedData['expire_date'] = $expireDate;
-
+            $validatedData["last_4_digits"] = $validatedData["card_number"] % 10000;
 
             $existingCard = Card::where('card_number', '=', $validatedData["card_number"])->first();
 
@@ -157,6 +159,27 @@ class PaymentsController extends Controller
             if ($payment["status"]) {
                 $subscription->update(['active' => true]);
             }
+
+            $plan = Plan::findOrFail($subscription->getAttribute('plan_id'));
+            $planPrice = $plan->getAttribute('price');
+
+            if ($subscription->getAttribute('coupon_id')) {
+                $coupon = Coupon::findOrFail($subscription->getAttribute('coupon_id'));
+
+                $pricePaid = null;
+
+                $discount = 0;
+
+                if ($coupon->discount_percent) {
+                    $discount = $plan->price * $coupon->discount_percent / 100;
+                } elseif ($coupon->discount_amount) {
+                    $discount = min($coupon->discount_amount, $plan->price);
+                }
+
+                $pricePaid = $planPrice - $discount;
+            }
+
+            $validatedData["price_paid"] = $pricePaid ?? $planPrice;
 
             $transaction = Transaction::create($validatedData);
 

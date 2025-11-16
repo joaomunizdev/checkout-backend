@@ -13,10 +13,7 @@ use OA;
  * title="Card (Complete Model)",
  * description="Card Model (includes sensitive data)",
  * @OA\Property(property="id", type="integer"),
- * @OA\Property(property="card_number", type="string"),
  * @OA\Property(property="client_name", type="string"),
- * @OA\Property(property="expire_date", type="string", format="date"),
- * @OA\Property(property="cvc", type="string"),
  * @OA\Property(property="card_flag_id", type="integer")
  * )
  */
@@ -26,6 +23,7 @@ class Card extends Model
 
     protected $fillable = [
         'card_number',
+        'last_4_digits',
         'client_name',
         'expire_date',
         'cvc',
@@ -36,6 +34,7 @@ class Card extends Model
     {
         return [
             'card_number' => 'integer',
+            'last_4_digits' => 'integer',
             'client_name' => 'string',
             'expire_date' => 'date',
             'cvc' => 'integer',
@@ -47,4 +46,9 @@ class Card extends Model
     {
         return $this->belongsTo(CardFlag::class);
     }
+
+    protected $hidden = [
+        'card_number',
+        'expire_date',
+    ];
 }

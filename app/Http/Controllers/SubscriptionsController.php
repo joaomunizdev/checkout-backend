@@ -24,6 +24,7 @@ use Exception;
  * description="Card details (partial, no sensitive data)",
  * @OA\Property(property="id", type="integer", example=1),
  * @OA\Property(property="client_name", type="string", example="JOAO DA SILVA"),
+ * @OA\Property(property="last_4_digits", type="string", example="4123"),
  * @OA\Property(property="expire_date", type="string", format="date", example="2028-12-31"),
  * @OA\Property(property="card_flag_id", type="integer", example=1)
  * )
@@ -51,7 +52,7 @@ use Exception;
  * schema="StoreSubscriptionPayload",
  * title="Subscription Creation Payload",
  * description="Full payload for the checkout endpoint.",
- * required={"plan_id", "email", "price_paid"},
+ * required={"plan_id", "email"},
  * @OA\Property(property="coupon", type="string", nullable=true, example="OFF10"),
  * @OA\Property(property="plan_id", type="integer", example=1),
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
@@ -79,7 +80,9 @@ class SubscriptionsController extends Controller
     {
         $subscription = Subscription::with([
             'transaction' => [
-                'card'
+                'card' => [
+                    'cardFlag',
+                ]
             ],
             'plan',
             'coupon'
@@ -173,12 +176,6 @@ class SubscriptionsController extends Controller
         DB::beginTransaction();
 
         try {
-            $coupon = null;
-
-            $plan = Plan::findOrFail($validatedData['plan_id']);
-            $planPrice = $plan->price;
-            $pricePaid = null;
-
             if (!empty($validatedData['coupon'])) {
                 $coupon = $couponService->validate(
                     $validatedData['coupon'],
@@ -187,19 +184,7 @@ class SubscriptionsController extends Controller
 
                 $couponId = $coupon->getKey();
                 $validatedData["coupon_id"] = $couponId;
-
-                $discount = 0;
-
-                if ($coupon->discount_percent) {
-                    $discount = $plan->price * $coupon->discount_percent / 100;
-                } elseif ($coupon->discount_amount) {
-                    $discount = min($coupon->discount_amount, $plan->price);
-                }
-
-                $pricePaid = $planPrice - $discount;
             }
-
-            $validatedData["price_paid"] = $pricePaid ?? $planPrice;
 
             $subscription = Subscription::create($validatedData);
 
@@ -241,7 +226,9 @@ class SubscriptionsController extends Controller
     {
         $subscription = Subscription::with([
             'transaction' => [
-                'card'
+                'card' => [
+                    'cardFlag'
+                ]
             ],
             'plan',
             'coupon'

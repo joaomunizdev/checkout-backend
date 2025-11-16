@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('coupon_id')->nullable();
             $table->string('email');
             $table->boolean('active')->default(false);
-            $table->float('price_paid');
             $table->timestamps();
 
             $table->foreign('plan_id')->references('id')->on('plans');

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OA;
 
@@ -17,7 +18,6 @@ use OA;
  * @OA\Property(property="plan_id", type="integer", example=1),
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
  * @OA\Property(property="coupon_id", type="integer", nullable=true, example=1),
- * @OA\Property(property="price_paid", type="number", format="float", example=99.90),
  * @OA\Property(property="active", type="boolean", example=true),
  * @OA\Property(property="created_at", type="string", format="date-time"),
  * @OA\Property(property="updated_at", type="string", format="date-time")
@@ -33,7 +33,6 @@ class Subscription extends Model
         'coupon_id',
         'email',
         'active',
-        'price_paid',
     ];
 
     protected function casts(): array
@@ -56,8 +55,8 @@ class Subscription extends Model
         return $this->belongsTo(Coupon::class);
     }
 
-    public function transaction(): HasOne
+    public function transaction(): HasMany
     {
-        return $this->hasOne(Transaction::class);
+        return $this->hasMany(Transaction::class);
     }
 }

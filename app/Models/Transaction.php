@@ -18,6 +18,7 @@ use OA;
  * @OA\Property(property="coupon_id", type="integer", nullable=true, example=1),
  * @OA\Property(property="subscription_id", type="integer", example=1),
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+ * @OA\Property(property="price_paid", type="number", format="float", example=99.90),
  * @OA\Property(property="created_at", type="string", format="date-time"),
  * @OA\Property(property="updated_at", type="string", format="date-time")
  * )
@@ -30,6 +31,7 @@ class Transaction extends Model
         'card_id',
         'subscription_id',
         'status',
+        'price_paid',
     ];
 
     protected function casts(): array
@@ -37,7 +39,8 @@ class Transaction extends Model
         return [
             'card_id' => 'integer',
             'subscription_id' => 'integer',
-            'status' => 'boolean'
+            'status' => 'boolean',
+            'price_paid' => 'float'
         ];
     }
 

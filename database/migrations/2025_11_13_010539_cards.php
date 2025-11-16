@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('card_number');
+            $table->integer('last_4_digits');
             $table->string('client_name', 255);
             $table->date('expire_date');
             $table->integer('cvc');
