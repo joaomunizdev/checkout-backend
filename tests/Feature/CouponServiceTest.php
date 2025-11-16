@@ -78,7 +78,7 @@ class CouponServiceTest extends TestCase
         Carbon::setTestNow();
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid coupon!');
+        $this->expectExceptionMessage('Expired coupon!');
 
         $this->service->validate('EXPIRED', $this->plan->getKey());
     }
@@ -93,7 +93,7 @@ class CouponServiceTest extends TestCase
         Subscription::factory()->count(2)->create(['coupon_id' => $coupon->id]);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid coupon!');
+        $this->expectExceptionMessage('Coupon usage limit exceeded!');
 
         $this->service->validate('USED_UP', $this->plan->getKey());
     }
