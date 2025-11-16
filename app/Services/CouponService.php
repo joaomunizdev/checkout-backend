@@ -19,8 +19,7 @@ class CouponService
             });
         }, function ($query) {
             $query->whereNull('plan_id');
-        })
-            ->first();
+        })->first();
 
         if (!$coupon) {
             throw new \Exception('Invalid coupon!');
@@ -29,14 +28,14 @@ class CouponService
         if ($coupon->expiration_days !== null) {
             $expirationDate = $coupon->getAttribute('created_at')->addDays($coupon->expiration_days);
             if (Carbon::now()->isAfter($expirationDate)) {
-                throw new \Exception('Invalid coupon!');
+                throw new \Exception('Expired coupon!');
             }
         }
 
         if ($coupon->amount_of_uses) {
             $usageCount = Subscription::where('coupon_id', $coupon->getKey())->count();
             if ($usageCount >= $coupon->amount_of_uses) {
-                throw new \Exception('Invalid coupon!');
+                throw new \Exception('Coupon usage limit exceeded!');
             }
         }
 
