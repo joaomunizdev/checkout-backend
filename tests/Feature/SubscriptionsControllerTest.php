@@ -48,8 +48,7 @@ class SubscriptionsControllerTest extends TestCase
         $response->assertStatus(201)
             ->assertJson([
                 'plan_id' => $this->plan->getKey(),
-                'email' => 'test@example.com',
-                'price_paid' => 100.00,
+                'email' => 'test@example.com'
             ]);
 
         $this->assertDatabaseHas('subscriptions', ['email' => 'test@example.com']);
@@ -66,8 +65,7 @@ class SubscriptionsControllerTest extends TestCase
         $payload = $this->getPayload(['coupon' => 'PERC30']);
         $response = $this->postJson('/api/subscriptions', $payload, $this->headers);
 
-        $response->assertStatus(201)
-            ->assertJson(['price_paid' => 70.00]);
+        $response->assertStatus(201);
     }
 
     public function test_it_can_create_a_subscription_with_amount_coupon(): void
@@ -82,13 +80,15 @@ class SubscriptionsControllerTest extends TestCase
         $payload = $this->getPayload(['coupon' => 'AMT10']);
         $response = $this->postJson('/api/subscriptions', $payload, $this->headers);
 
-        $response->assertStatus(201)
-            ->assertJson(['price_paid' => 90.00]);
+        $response->assertStatus(201);
     }
 
     public function test_it_rejects_creation_with_a_duplicate_email(): void
     {
-        Subscription::factory()->create(['email' => 'test@example.com']);
+        Subscription::factory()->create([
+            'email' => 'test@example.com',
+            'plan_id' => $this->plan->getKey()
+        ]);
 
         $payload = $this->getPayload();
         $response = $this->postJson('/api/subscriptions', $payload, $this->headers);
@@ -119,7 +119,7 @@ class SubscriptionsControllerTest extends TestCase
 
     public function test_it_can_list_all_subscriptions(): void
     {
-        Subscription::factory()->count(3)->create();
+        Subscription::factory()->count(3)->create(['plan_id' => $this->plan->getKey()]);
 
         $this->getJson('/api/subscriptions')
             ->assertStatus(200)
@@ -129,7 +129,7 @@ class SubscriptionsControllerTest extends TestCase
 
     public function test_it_can_show_a_specific_subscription(): void
     {
-        $subscription = Subscription::factory()->create();
+        $subscription = Subscription::factory()->create(['plan_id' => $this->plan->getKey()]);
 
         $this->getJson("/api/subscriptions/{$subscription->id}")
             ->assertStatus(200)

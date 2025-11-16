@@ -20,7 +20,6 @@ class SubscriptionFactory extends Factory
             'coupon_id' => null,
             'email' => $this->faker->unique()->safeEmail(),
             'active' => false,
-            'price_paid' => 0,
         ];
     }
 }

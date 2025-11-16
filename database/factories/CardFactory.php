@@ -18,6 +18,7 @@ class CardFactory extends Factory
         return [
             'card_number' => $this->faker->creditCardNumber(),
             'client_name' => $this->faker->name(),
+            'last_4_digits' => $this->faker->numberBetween(1,4),
             'expire_date' => $this->faker->dateTimeBetween('+1 year', '+5 years'),
             'cvc' => $this->faker->numberBetween(100, 999),
             'card_flag_id' => CardFlag::factory(),

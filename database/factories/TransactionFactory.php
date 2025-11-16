@@ -20,6 +20,7 @@ class TransactionFactory extends Factory
             'card_id' => Card::factory(),
             'subscription_id' => Subscription::factory(),
             'status' => $this->faker->boolean(80),
+            'price_paid' => 0,
         ];
     }
 }
