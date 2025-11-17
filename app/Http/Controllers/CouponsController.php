@@ -88,7 +88,7 @@ class CouponsController extends Controller
      */
     public function showByPlanId(string $value)
     {
-        $coupon = Coupon::where('name', 'like', $value)->get();
+        $coupon = Coupon::where('name', 'like', $value)->firstOrFail();
 
         return response()->json($coupon);
     }
