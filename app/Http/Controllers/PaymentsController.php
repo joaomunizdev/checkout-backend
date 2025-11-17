@@ -37,7 +37,7 @@ use OpenApi\Attributes as OA;
  * schema="ValidationErrorResponse",
  * title="Resposta de Erro de Validação",
  * required={"message", "errors"},
- * @OA\Property(property="message", type="string", example="Os dados fornecidos são inválidos."),
+ * @OA\Property(property="message", type="string", example="The data provided is invalid."),
  * @OA\Property(
  * property="errors",
  * type="object",
@@ -125,10 +125,10 @@ class PaymentsController extends Controller
      * example="validationError",
      * summary="Erro de Validação (Laravel $validate)",
      * value={
-     * "message": "Os dados fornecidos são inválidos.",
+     * "message": "The data provided is invalid.",
      * "errors": {
-     * "card_number": {"O campo card number deve ter entre 12 e 19 dígitos."},
-     * "expire_date": {"O campo expire date não corresponde ao formato m/y."}
+     * "card_number": {"The card number field must contain between 12 and 19 digits."},
+     * "expire_date": {"The expire date field does not match the m/y format."}
      * }
      * }
      * ),
@@ -136,7 +136,7 @@ class PaymentsController extends Controller
      * example="processingError",
      * summary="Erro de Processamento",
      * value={
-     * "message": "Esta assinatura já está ativa."
+     * "message": "This subscription is already active."
      * }
      * )
      * )
@@ -161,7 +161,7 @@ class PaymentsController extends Controller
             $subscription = Subscription::findOrFail($validatedData['subscription_id']);
 
             if ($subscription->active) {
-                throw new Exception('Esta assinatura já está ativa.');
+                throw new Exception('This subscription is already active.');
             }
 
             $expireDate = Carbon::createFromFormat('m/y', $validatedData['expire_date'])

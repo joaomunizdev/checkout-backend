@@ -27,7 +27,7 @@ use OpenApi\Attributes as OA;
  * title="Sucesso na Validação do Cupom",
  * description="Resposta de sucesso para um cupom válido",
  * @OA\Property(property="valid", type="boolean", example=true),
- * @OA\Property(property="message", type="string", example="Cupom válido!")
+ * @OA\Property(property="message", type="string", example="Valid Coupon!")
  * )
  *
  * @OA\Schema(
@@ -35,7 +35,7 @@ use OpenApi\Attributes as OA;
  * title="Falha na Validação do Cupom",
  * description="Resposta de falha para um cupom inválido (regra de negócio)",
  * @OA\Property(property="valid", type="boolean", example=false),
- * @OA\Property(property="message", type="string", example="Este cupom já expirou.")
+ * @OA\Property(property="message", type="string", example="Expired coupon.")
  * )
  *
  * )
@@ -121,9 +121,9 @@ class CouponsController extends Controller
      * example="validationError",
      * summary="Erro de Validação (Laravel $validate)",
      * value={
-     * "message": "Os dados fornecidos são inválidos.",
+     * "message": "The data provided is invalid.",
      * "errors": {
-     * "coupon": {"O cupom selecionado é inválido."}
+     * "coupon": {"Invalid coupon!"}
      * }
      * }
      * ),
@@ -132,7 +132,7 @@ class CouponsController extends Controller
      * summary="Erro de Regra (Serviço)",
      * value={
      * "valid": false,
-     * "message": "Este cupom já expirou."
+     * "message": "Expired coupon."
      * }
      * )
      * )

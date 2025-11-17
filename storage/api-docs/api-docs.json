@@ -188,10 +188,10 @@
                                     "validationError": {
                                         "summary": "Erro de Validação (Laravel $validate)",
                                         "value": {
-                                            "message": "Os dados fornecidos são inválidos.",
+                                            "message": "The data provided is invalid.",
                                             "errors": {
                                                 "coupon": [
-                                                    "O cupom selecionado é inválido."
+                                                    "Invalid coupon!"
                                                 ]
                                             }
                                         }
@@ -200,7 +200,7 @@
                                         "summary": "Erro de Regra (Serviço)",
                                         "value": {
                                             "valid": false,
-                                            "message": "Este cupom já expirou."
+                                            "message": "Expired coupon."
                                         }
                                     }
                                 }
@@ -324,13 +324,13 @@
                                     "validationError": {
                                         "summary": "Erro de Validação (Laravel $validate)",
                                         "value": {
-                                            "message": "Os dados fornecidos são inválidos.",
+                                            "message": "The data provided is invalid.",
                                             "errors": {
                                                 "card_number": [
-                                                    "O campo card number deve ter entre 12 e 19 dígitos."
+                                                    "The card number field must contain between 12 and 19 digits."
                                                 ],
                                                 "expire_date": [
-                                                    "O campo expire date não corresponde ao formato m/y."
+                                                    "The expire date field does not match the m/y format."
                                                 ]
                                             }
                                         }
@@ -338,7 +338,7 @@
                                     "processingError": {
                                         "summary": "Erro de Processamento",
                                         "value": {
-                                            "message": "Esta assinatura já está ativa."
+                                            "message": "This subscription is already active."
                                         }
                                     }
                                 }
@@ -501,10 +501,10 @@
                                     "validationError": {
                                         "summary": "Erro de Validação (Laravel $validate)",
                                         "value": {
-                                            "message": "Os dados fornecidos são inválidos.",
+                                            "message": "The data provided is invalid.",
                                             "errors": {
                                                 "email": [
-                                                    "Este e-mail já possui uma assinatura. Por favor, utilize outro e-mail."
+                                                    "This email already contains a signature. Please use a different email address.."
                                                 ]
                                             }
                                         }
@@ -512,7 +512,7 @@
                                     "couponError": {
                                         "summary": "Erro de Regra (Serviço/Exception)",
                                         "value": {
-                                            "message": "Este cupom já expirou."
+                                            "message": "Expired coupon."
                                         }
                                     }
                                 }
@@ -640,7 +640,7 @@
                     },
                     "message": {
                         "type": "string",
-                        "example": "Cupom válido!"
+                        "example": "Valid Coupon!"
                     }
                 },
                 "type": "object"
@@ -655,7 +655,7 @@
                     },
                     "message": {
                         "type": "string",
-                        "example": "Este cupom já expirou."
+                        "example": "Expired coupon."
                     }
                 },
                 "type": "object"
@@ -713,7 +713,7 @@
                 "properties": {
                     "message": {
                         "type": "string",
-                        "example": "Os dados fornecidos são inválidos."
+                        "example": "The data provided is invalid."
                     },
                     "errors": {
                         "description": "Objeto onde as chaves são os nomes dos campos e os valores são arrays de mensagens de erro.",
@@ -766,7 +766,7 @@
                 "properties": {
                     "message": {
                         "type": "string",
-                        "example": "Mensagem de erro."
+                        "example": "Error message."
                     }
                 },
                 "type": "object"

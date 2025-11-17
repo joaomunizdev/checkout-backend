@@ -33,7 +33,7 @@ use Exception;
  * schema="SimpleErrorResponse",
  * title="Resposta de Erro Simples",
  * description="Resposta de erro simples",
- * @OA\Property(property="message", type="string", example="Mensagem de erro.")
+ * @OA\Property(property="message", type="string", example="Error message.")
  * )
  *
 
@@ -152,9 +152,9 @@ class SubscriptionsController extends Controller
      * example="validationError",
      * summary="Erro de Validação (Laravel $validate)",
      * value={
-     * "message": "Os dados fornecidos são inválidos.",
+     * "message": "The data provided is invalid.",
      * "errors": {
-     * "email": {"Este e-mail já possui uma assinatura. Por favor, utilize outro e-mail."}
+     * "email": {"This email already contains a signature. Please use a different email address.."}
      * }
      * }
      * ),
@@ -162,7 +162,7 @@ class SubscriptionsController extends Controller
      * example="couponError",
      * summary="Erro de Regra (Serviço/Exception)",
      * value={
-     * "message": "Este cupom já expirou."
+     * "message": "Expired coupon."
      * }
      * )
      * )
