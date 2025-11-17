@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
-use OA;
+use OpenApi\Attributes as OA;
 
 /**
  * @OA\Tag(
  * name="Plans",
- * description="Endpoints for retrieving subscription plans"
+ * description="Endpoints para buscar planos de assinatura"
  * )
  *
  */
@@ -18,11 +18,11 @@ class PlansController extends Controller
      * @OA\Get(
      * path="/api/plans",
      * tags={"Plans"},
-     * summary="List all plans",
-     * description="Retrieves a complete list of all available subscription plans.",
+     * summary="Listar todos os planos",
+     * description="Recupera uma lista completa de todos os planos de assinatura disponíveis.",
      * @OA\Response(
      * response=200,
-     * description="A list of plans",
+     * description="Uma lista de planos",
      * @OA\JsonContent(
      * type="array",
      * @OA\Items(ref="#/components/schemas/Plan")
@@ -41,23 +41,24 @@ class PlansController extends Controller
      * @OA\Get(
      * path="/api/plans/{id}",
      * tags={"Plans"},
-     * summary="Get a specific plan by ID",
-     * description="Retrieves the details of a single plan by its unique ID.",
+     * summary="Obter um plano específico por ID",
+     * description="Recupera os detalhes de um único plano por seu ID.",
      * @OA\Parameter(
      * name="id",
      * in="path",
      * required=true,
-     * description="The ID of the plan",
-     * @OA\Schema(type="integer")
+     * description="O ID do plano",
+     * @OA\Schema(type="integer", example=1)
      * ),
      * @OA\Response(
      * response=200,
-     * description="The plan details",
+     * description="Detalhes do plano",
      * @OA\JsonContent(ref="#/components/schemas/Plan")
      * ),
      * @OA\Response(
      * response=404,
-     * description="Signature not found (returns standard Laravel JSON 404)"
+     * description="Plano não encontrado.",
+     * @OA\JsonContent(ref="#/components/schemas/SimpleErrorResponse")
      * )
      * )
      */

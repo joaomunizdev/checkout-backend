@@ -12,27 +12,42 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use OA;
+use OpenApi\Attributes as OA;
 
 /**
  * @OA\Tag(
  * name="Payments",
- * description="Endpoints for processing subsequent payments on existing subscriptions"
+ * description="Endpoints para processar pagamentos subsequentes em assinaturas existentes"
  * )
  *
  * @OA\Schema(
  * schema="PaymentPayload",
  * title="Payment Payload",
- * description="Payload required to process a new payment",
+ * description="Payload necessário para processar um novo pagamento",
  * required={"subscription_id", "card_number", "client_name", "expire_date", "cvc", "card_flag_id"},
- * @OA\Property(property="subscription_id", type="integer", description="ID of the subscription being paid for", example=1),
- * @OA\Property(property="card_number", type="numberic", description="Credit card number (12-19 digits)", example=5555444433332222),
- * @OA\Property(property="client_name", type="string", description="Name as it appears on the card", example="JOAO DA SILVA"),
- * @OA\Property(property="expire_date", type="string", description="MM/YY", example="12/28"),
- * @OA\Property(property="cvc", type="string", description="CVC/CVV (3-4 digits)", example="123"),
- * @OA\Property(property="card_flag_id", type="integer", example=1),
+ * @OA\Property(property="subscription_id", type="integer", description="ID da assinatura que está sendo paga", example=1),
+ * @OA\Property(property="card_number", type="string", description="Número do cartão de crédito (12-19 dígitos)", example="5555444433332222"),
+ * @OA\Property(property="client_name", type="string", description="Nome como aparece no cartão", example="JOAO DA SILVA"),
+ * @OA\Property(property="expire_date", type="string", description="MM/AA", example="12/28"),
+ * @OA\Property(property="cvc", type="string", description="CVC/CVV (3-4 dígitos)", example="123"),
+ * @OA\Property(property="card_flag_id", type="integer", example=1)
  * )
  *
+ * @OA\Schema(
+ * schema="ValidationErrorResponse",
+ * title="Resposta de Erro de Validação",
+ * required={"message", "errors"},
+ * @OA\Property(property="message", type="string", example="Os dados fornecidos são inválidos."),
+ * @OA\Property(
+ * property="errors",
+ * type="object",
+ * description="Objeto onde as chaves são os nomes dos campos e os valores são arrays de mensagens de erro.",
+ * @OA\AdditionalProperties(
+ * type="array",
+ * @OA\Items(type="string")
+ * )
+ * )
+ * )
  */
 class PaymentsController extends Controller
 {
@@ -40,17 +55,17 @@ class PaymentsController extends Controller
      * @OA\Get(
      * path="/api/payments/create",
      * tags={"Payments"},
-     * summary="Shows the payload format for creating a payment",
-     * description="Returns an example JSON payload showing the fields required for the 'store' endpoint.",
+     * summary="Mostra o formato do payload para criar um pagamento",
+     * description="Retorna um payload JSON de exemplo mostrando os campos necessários para o endpoint 'store'.",
      * @OA\Response(
      * response=200,
-     * description="Example payload format",
+     * description="Formato do payload de exemplo",
      * @OA\JsonContent(
      * type="object",
      * @OA\Property(property="payload_format", type="object",
      * @OA\Property(property="subscription_id", type="string", example="Subscription ID"),
      * @OA\Property(property="card_number", type="string", example="5555444433332222"),
-     * @OA\Property(property="client_name", type="string", example="NAME AS IT APPEARS ON THE CARD"),
+     * @OA\Property(property="client_name", type="string", example="NOME COMO APARECE NO CARTÃO"),
      * @OA\Property(property="expire_date", type="string", example="12/28"),
      * @OA\Property(property="cvc", type="string", example="123"),
      * @OA\Property(property="card_flag_id", type="integer", example=1)
@@ -64,10 +79,10 @@ class PaymentsController extends Controller
         $payload = [
             'subscription_id' => 'Subscription ID',
             'card_number' => '1111222233334444',
-            'client_name' => 'NAME AS IT APPEARS ON THE CARD',
-            'expiration_date' => 'MM/YY (e.g., "28/12")',
+            'client_name' => 'NOME COMO APARECE NO CARTÃO',
+            'expiration_date' => 'MM/AA (ex: 12/28)',
             'cvc' => '123',
-            'card_flag_id' => 'ID (int) of the card brand (e.g., 1 for Visa)',
+            'card_flag_id' => 'ID (int) da bandeira (ex: 1 para Visa)',
         ];
 
         return response()->json([
@@ -79,39 +94,53 @@ class PaymentsController extends Controller
      * @OA\Post(
      * path="/api/payments",
      * tags={"Payments"},
-     * summary="Processes a new payment for a subscription",
-     * description="Receives payment details, processes it through the simulated gateway, and creates a card and transaction record.",
+     * summary="Processa um novo pagamento para uma assinatura",
+     * description="Recebe os detalhes do pagamento, processa através do gateway simulado e cria um registro de cartão e transação.",
      * @OA\Parameter(
      * name="Idempotency-Key",
      * in="header",
      * required=true,
-     * description="A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
-     * @OA\Schema(
-     * type="string",
-     * format="uuid",
-     * example="a1b2c3d4-5678-90ab-cdef-1234567890ab"
-     * )
+     * description="Uma chave única (UUID) usada para garantir que a requisição seja processada apenas uma vez.",
+     * @OA\Schema(type="string", format="uuid", example="a1b2c3d4-5678-90ab-cdef-1234567890ab")
      * ),
      * @OA\RequestBody(
-     * description="Payment details",
+     * description="Detalhes do pagamento",
      * required=true,
      * @OA\JsonContent(ref="#/components/schemas/PaymentPayload")
      * ),
      * @OA\Response(
      * response=201,
-     * description="Payment processed successfully, transaction created",
+     * description="Pagamento processado com sucesso, transação criada",
      * @OA\JsonContent(ref="#/components/schemas/Transaction")
      * ),
      * @OA\Response(
      * response=422,
-     * description="Validation error or payment denied by gateway",
-     * @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     * description="Erro de validação (Exemplo 1) ou Erro de processamento/pagamento negado (Exemplo 2).",
+     * @OA\JsonContent(
+     * oneOf={
+     * @OA\Schema(ref="#/components/schemas/ValidationErrorResponse"),
+     * @OA\Schema(ref="#/components/schemas/SimpleErrorResponse")
+     * },
+     * @OA\Examples(
+     * example="validationError",
+     * summary="Erro de Validação (Laravel $validate)",
+     * value={
+     * "message": "Os dados fornecidos são inválidos.",
+     * "errors": {
+     * "card_number": {"O campo card number deve ter entre 12 e 19 dígitos."},
+     * "expire_date": {"O campo expire date não corresponde ao formato m/y."}
+     * }
+     * }
      * ),
-     * @OA\Response(
-     * response=404,
-     * description="Subscription not found",
-     * @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     * @OA\Examples(
+     * example="processingError",
+     * summary="Erro de Processamento",
+     * value={
+     * "message": "Esta assinatura já está ativa."
+     * }
      * )
+     * )
+     * ),
      * )
      */
     public function store(Request $request, PaymentGatewayService $paymentGatewayService)
@@ -140,7 +169,7 @@ class PaymentsController extends Controller
                 ->format('Y-m-d');
 
             $validatedData['expire_date'] = $expireDate;
-            $validatedData["last_4_digits"] = $validatedData["card_number"] % 10000;
+            $validatedData["last_4_digits"] = substr($validatedData["card_number"], -4);
 
             $existingCard = Card::where('card_number', '=', $validatedData["card_number"])->first();
 
@@ -162,11 +191,10 @@ class PaymentsController extends Controller
 
             $plan = Plan::findOrFail($subscription->getAttribute('plan_id'));
             $planPrice = $plan->getAttribute('price');
+            $pricePaid = $planPrice;
 
             if ($subscription->getAttribute('coupon_id')) {
                 $coupon = Coupon::findOrFail($subscription->getAttribute('coupon_id'));
-
-                $pricePaid = null;
 
                 $discount = 0;
 
@@ -179,7 +207,7 @@ class PaymentsController extends Controller
                 $pricePaid = $planPrice - $discount;
             }
 
-            $validatedData["price_paid"] = $pricePaid ?? $planPrice;
+            $validatedData["price_paid"] = $pricePaid;
 
             $transaction = Transaction::create($validatedData);
 

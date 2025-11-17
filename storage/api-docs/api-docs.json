@@ -17,12 +17,12 @@
                 "tags": [
                     "CardFlags"
                 ],
-                "summary": "List all card brands",
-                "description": "Retrieves a complete list of all available card brands.",
+                "summary": "Listar todas as bandeiras de cartão",
+                "description": "Recupera uma lista completa de todas as bandeiras de cartão disponíveis.",
                 "operationId": "1a251522c50244b43197dff6256f6a3c",
                 "responses": {
                     "200": {
-                        "description": "A list of card brands",
+                        "description": "Uma lista de bandeiras de cartão",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -42,23 +42,24 @@
                 "tags": [
                     "CardFlags"
                 ],
-                "summary": "Get a specific card brand by ID",
-                "description": "Retrieves the details of a single card brand by its unique ID.",
+                "summary": "Obter uma bandeira de cartão específica por ID",
+                "description": "Recupera os detalhes de uma única bandeira de cartão pelo seu ID.",
                 "operationId": "ecf32cd5fa8fbb7db1c3c68bafc958df",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "The ID of the card brand",
+                        "description": "O ID da bandeira do cartão",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The card brand details",
+                        "description": "Detalhes da bandeira do cartão",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -68,7 +69,14 @@
                         }
                     },
                     "404": {
-                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                        "description": "Bandeira do cartão não encontrada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -78,12 +86,12 @@
                 "tags": [
                     "Coupons"
                 ],
-                "summary": "List all coupons",
-                "description": "Retrieves a complete list of all available coupons in the system.",
+                "summary": "Listar todos os cupons",
+                "description": "Recupera uma lista completa de todos os cupons disponíveis no sistema.",
                 "operationId": "604737e7b2bc9f1cf60f74f3e9d3d52e",
                 "responses": {
                     "200": {
-                        "description": "A list of all coupons",
+                        "description": "Uma lista de todos os cupons",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -98,35 +106,33 @@
                 }
             }
         },
-        "/api/coupons/{id}": {
+        "/api/coupons/{value}": {
             "get": {
                 "tags": [
                     "Coupons"
                 ],
-                "summary": "Get coupons applicable to a specific plan",
-                "description": "Finds coupons that are either specific to the given Plan ID or are global (plan_id = null). Note: The {id} in the path refers to the Plan ID.",
-                "operationId": "14506a77d22ace01a14c5e6820bcaaeb",
+                "summary": "Obter cupons pelo nome",
+                "description": "Encontra cupom pelo nome",
+                "operationId": "d58ddd79d979605c72fafb1f3a3bee08",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "value",
                         "in": "path",
-                        "description": "The ID of the Plan to check for coupons",
+                        "description": "O nome do cupom para verificar dados do cupom",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "example": "OFF10"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "A list of applicable coupons",
+                        "description": "Detalhes do cupom",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Coupon"
-                                    }
+                                    "$ref": "#/components/schemas/Coupon"
                                 }
                             }
                         }
@@ -139,11 +145,11 @@
                 "tags": [
                     "Coupons"
                 ],
-                "summary": "Validate a coupon",
-                "description": "Checks if a coupon is valid based on its code, associated plan, expiration, and usage limits.",
+                "summary": "Validar um cupom",
+                "description": "Verifica se um cupom é válido com base em seu código, plano associado, expiração e limites de uso.",
                 "operationId": "f12b3be9ca3540427c60ea2d74c1bd7a",
                 "requestBody": {
-                    "description": "Coupon and Plan ID to validate",
+                    "description": "Cupom e ID do Plano para validar",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -155,7 +161,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Coupon is valid",
+                        "description": "Cupom é válido",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -165,11 +171,38 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error or coupon is invalid (expired, limit reached, etc.)",
+                        "description": "Erro de validação (Ex: cupom não existe) ou cupom inválido (Ex: expirado).",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/CouponValidationFailure"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "validationError": {
+                                        "summary": "Erro de Validação (Laravel $validate)",
+                                        "value": {
+                                            "message": "Os dados fornecidos são inválidos.",
+                                            "errors": {
+                                                "coupon": [
+                                                    "O cupom selecionado é inválido."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "couponInvalid": {
+                                        "summary": "Erro de Regra (Serviço)",
+                                        "value": {
+                                            "valid": false,
+                                            "message": "Este cupom já expirou."
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -182,12 +215,12 @@
                 "tags": [
                     "Payments"
                 ],
-                "summary": "Shows the payload format for creating a payment",
-                "description": "Returns an example JSON payload showing the fields required for the 'store' endpoint.",
+                "summary": "Mostra o formato do payload para criar um pagamento",
+                "description": "Retorna um payload JSON de exemplo mostrando os campos necessários para o endpoint 'store'.",
                 "operationId": "8885984a4a8e9a915705ff1bddf40e5b",
                 "responses": {
                     "200": {
-                        "description": "Example payload format",
+                        "description": "Formato do payload de exemplo",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -204,7 +237,7 @@
                                                 },
                                                 "client_name": {
                                                     "type": "string",
-                                                    "example": "NAME AS IT APPEARS ON THE CARD"
+                                                    "example": "NOME COMO APARECE NO CARTÃO"
                                                 },
                                                 "expire_date": {
                                                     "type": "string",
@@ -235,14 +268,14 @@
                 "tags": [
                     "Payments"
                 ],
-                "summary": "Processes a new payment for a subscription",
-                "description": "Receives payment details, processes it through the simulated gateway, and creates a card and transaction record.",
+                "summary": "Processa um novo pagamento para uma assinatura",
+                "description": "Recebe os detalhes do pagamento, processa através do gateway simulado e cria um registro de cartão e transação.",
                 "operationId": "d36e2be5fe281b6d1586dd9ce1306ab5",
                 "parameters": [
                     {
                         "name": "Idempotency-Key",
                         "in": "header",
-                        "description": "A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
+                        "description": "Uma chave única (UUID) usada para garantir que a requisição seja processada apenas uma vez.",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -252,7 +285,7 @@
                     }
                 ],
                 "requestBody": {
-                    "description": "Payment details",
+                    "description": "Detalhes do pagamento",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -264,7 +297,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Payment processed successfully, transaction created",
+                        "description": "Pagamento processado com sucesso, transação criada",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -274,21 +307,40 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error or payment denied by gateway",
+                        "description": "Erro de validação (Exemplo 1) ou Erro de processamento/pagamento negado (Exemplo 2).",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Subscription not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/SimpleErrorResponse"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "validationError": {
+                                        "summary": "Erro de Validação (Laravel $validate)",
+                                        "value": {
+                                            "message": "Os dados fornecidos são inválidos.",
+                                            "errors": {
+                                                "card_number": [
+                                                    "O campo card number deve ter entre 12 e 19 dígitos."
+                                                ],
+                                                "expire_date": [
+                                                    "O campo expire date não corresponde ao formato m/y."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "processingError": {
+                                        "summary": "Erro de Processamento",
+                                        "value": {
+                                            "message": "Esta assinatura já está ativa."
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -301,12 +353,12 @@
                 "tags": [
                     "Plans"
                 ],
-                "summary": "List all plans",
-                "description": "Retrieves a complete list of all available subscription plans.",
+                "summary": "Listar todos os planos",
+                "description": "Recupera uma lista completa de todos os planos de assinatura disponíveis.",
                 "operationId": "907c24d149908106557dca8d36e8c11a",
                 "responses": {
                     "200": {
-                        "description": "A list of plans",
+                        "description": "Uma lista de planos",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -326,23 +378,24 @@
                 "tags": [
                     "Plans"
                 ],
-                "summary": "Get a specific plan by ID",
-                "description": "Retrieves the details of a single plan by its unique ID.",
+                "summary": "Obter um plano específico por ID",
+                "description": "Recupera os detalhes de um único plano por seu ID.",
                 "operationId": "f4c9eaa3c265605179b7abdaf1f6a085",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "The ID of the plan",
+                        "description": "O ID do plano",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The plan details",
+                        "description": "Detalhes do plano",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -352,7 +405,14 @@
                         }
                     },
                     "404": {
-                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                        "description": "Plano não encontrado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -362,12 +422,12 @@
                 "tags": [
                     "Subscriptions"
                 ],
-                "summary": "List all subscriptions",
-                "description": "Returns a list of all subscriptions with their relationships.",
+                "summary": "Listar todas as assinaturas",
+                "description": "Retorna uma lista de todas as assinaturas com seus relacionamentos.",
                 "operationId": "a57381ef1031fcbb133278a38ec4138c",
                 "responses": {
                     "200": {
-                        "description": "Subscription list",
+                        "description": "Lista de assinaturas",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -385,14 +445,14 @@
                 "tags": [
                     "Subscriptions"
                 ],
-                "summary": "Create a new subscription (Checkout)",
-                "description": "It receives the plan, customer, and card details; validates the coupon; processes the payment; and creates the subscription, card, and transaction.",
+                "summary": "Criar uma nova assinatura (Checkout - Passo 1)",
+                "description": "Recebe o plano, cliente e cupom. Valida o cupom e cria a assinatura inicial (ainda inativa).",
                 "operationId": "0fed2b35010e282f6ccc656ac915f78b",
                 "parameters": [
                     {
                         "name": "Idempotency-Key",
                         "in": "header",
-                        "description": "A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
+                        "description": "Uma chave única (UUID) usada para garantir que a requisição seja processada apenas uma vez.",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -402,7 +462,7 @@
                     }
                 ],
                 "requestBody": {
-                    "description": "Subscription and payment details",
+                    "description": "Detalhes da assinatura",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -414,7 +474,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Signature created successfully.",
+                        "description": "Assinatura criada com sucesso.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -424,11 +484,37 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error, payment failure, missing Idempotency-Key, duplicate Idempotency-Key validation, and coupon verification.",
+                        "description": "Erro de validação (Ex: email duplicado) ou erro de regra (Ex: cupom inválido).",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/SimpleErrorResponse"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "validationError": {
+                                        "summary": "Erro de Validação (Laravel $validate)",
+                                        "value": {
+                                            "message": "Os dados fornecidos são inválidos.",
+                                            "errors": {
+                                                "email": [
+                                                    "Este e-mail já possui uma assinatura. Por favor, utilize outro e-mail."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "couponError": {
+                                        "summary": "Erro de Regra (Serviço/Exception)",
+                                        "value": {
+                                            "message": "Este cupom já expirou."
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -441,12 +527,12 @@
                 "tags": [
                     "Subscriptions"
                 ],
-                "summary": "Shows the payload format for creating a signature.",
-                "description": "Returns a sample JSON showing the fields required for the endpoint. 'store'.",
+                "summary": "Mostra o formato do payload para criar uma assinatura.",
+                "description": "Retorna um JSON de exemplo mostrando os campos necessários para o endpoint 'store'.",
                 "operationId": "f45274a433552cd025e3c7ce4e7b9756",
                 "responses": {
                     "200": {
-                        "description": "Payload example",
+                        "description": "Exemplo de payload",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -482,23 +568,24 @@
                 "tags": [
                     "Subscriptions"
                 ],
-                "summary": "Search for a specific subscription",
-                "description": "Returns the data for a subscription and its relationships..",
+                "summary": "Buscar uma assinatura específica",
+                "description": "Retorna os dados de uma assinatura e seus relacionamentos.",
                 "operationId": "9f5f8baf2f2e4388c9751660f0e683dc",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "Subscription ID",
+                        "description": "ID da Assinatura",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Subscription details",
+                        "description": "Detalhes da assinatura",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -508,7 +595,14 @@
                         }
                     },
                     "404": {
-                        "description": "Signature not found (returns standard Laravel JSON 404)"
+                        "description": "Assinatura não encontrada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -518,19 +612,18 @@
         "schemas": {
             "CouponValidationPayload": {
                 "title": "Coupon Validation Payload",
-                "description": "Payload required to validate a coupon",
+                "description": "Payload necessário para validar um cupom",
                 "required": [
-                    "coupon",
-                    "plan_id"
+                    "coupon"
                 ],
                 "properties": {
                     "coupon": {
-                        "description": "The coupon code to validate",
+                        "description": "O código do cupom para validar",
                         "type": "string",
-                        "example": "SAVE30"
+                        "example": "OFF10"
                     },
                     "plan_id": {
-                        "description": "The ID of the plan this coupon will be applied to",
+                        "description": "O ID do plano ao qual este cupom será aplicado",
                         "type": "integer",
                         "example": 1
                     }
@@ -538,8 +631,8 @@
                 "type": "object"
             },
             "CouponValidationSuccess": {
-                "title": "Coupon Validation Success",
-                "description": "Successful response for a valid coupon",
+                "title": "Sucesso na Validação do Cupom",
+                "description": "Resposta de sucesso para um cupom válido",
                 "properties": {
                     "valid": {
                         "type": "boolean",
@@ -547,14 +640,29 @@
                     },
                     "message": {
                         "type": "string",
-                        "example": "Valid coupon!"
+                        "example": "Cupom válido!"
+                    }
+                },
+                "type": "object"
+            },
+            "CouponValidationFailure": {
+                "title": "Falha na Validação do Cupom",
+                "description": "Resposta de falha para um cupom inválido (regra de negócio)",
+                "properties": {
+                    "valid": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Este cupom já expirou."
                     }
                 },
                 "type": "object"
             },
             "PaymentPayload": {
                 "title": "Payment Payload",
-                "description": "Payload required to process a new payment",
+                "description": "Payload necessário para processar um novo pagamento",
                 "required": [
                     "subscription_id",
                     "card_number",
@@ -565,27 +673,27 @@
                 ],
                 "properties": {
                     "subscription_id": {
-                        "description": "ID of the subscription being paid for",
+                        "description": "ID da assinatura que está sendo paga",
                         "type": "integer",
                         "example": 1
                     },
                     "card_number": {
-                        "description": "Credit card number (12-19 digits)",
+                        "description": "Número do cartão de crédito (12-19 dígitos)",
                         "type": "string",
                         "example": "5555444433332222"
                     },
                     "client_name": {
-                        "description": "Name as it appears on the card",
+                        "description": "Nome como aparece no cartão",
                         "type": "string",
                         "example": "JOAO DA SILVA"
                     },
                     "expire_date": {
-                        "description": "MM/YY",
+                        "description": "MM/AA",
                         "type": "string",
                         "example": "12/28"
                     },
                     "cvc": {
-                        "description": "CVC/CVV (3-4 digits)",
+                        "description": "CVC/CVV (3-4 dígitos)",
                         "type": "string",
                         "example": "123"
                     },
@@ -596,33 +704,33 @@
                 },
                 "type": "object"
             },
-            "CardResponse": {
-                "title": "Card",
-                "description": "Card details (partial, no sensitive data)",
+            "ValidationErrorResponse": {
+                "title": "Resposta de Erro de Validação",
+                "required": [
+                    "message",
+                    "errors"
+                ],
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "client_name": {
+                    "message": {
                         "type": "string",
-                        "example": "JOAO DA SILVA"
+                        "example": "Os dados fornecidos são inválidos."
                     },
-                    "expire_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2028-12-31"
-                    },
-                    "card_flag_id": {
-                        "type": "integer",
-                        "example": 1
+                    "errors": {
+                        "description": "Objeto onde as chaves são os nomes dos campos e os valores são arrays de mensagens de erro.",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "type": "object"
             },
             "SubscriptionWithRelations": {
-                "title": "Subscription",
-                "description": "Subscription with all related details (plan, coupon, transaction)",
+                "title": "Assinatura com Relações",
+                "description": "Assinatura com todos os detalhes relacionados (plano, cupom, transação)",
                 "type": "object",
                 "allOf": [
                     {
@@ -634,34 +742,41 @@
                                 "$ref": "#/components/schemas/Plan"
                             },
                             "coupon": {
-                                "$ref": "#/components/schemas/Coupon"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Coupon"
+                                    }
+                                ],
+                                "nullable": true
                             },
                             "transaction": {
-                                "$ref": "#/components/schemas/Transaction"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Transaction"
+                                }
                             }
                         },
                         "type": "object"
                     }
                 ]
             },
-            "ErrorResponse": {
-                "title": "Error Response",
-                "description": "Standard error response for 422",
+            "SimpleErrorResponse": {
+                "title": "Resposta de Erro Simples",
+                "description": "Resposta de erro simples",
                 "properties": {
                     "message": {
                         "type": "string",
-                        "example": "Payment declined."
+                        "example": "Mensagem de erro."
                     }
                 },
                 "type": "object"
             },
             "StoreSubscriptionPayload": {
-                "title": "Subscription Creation Payload",
-                "description": "Full payload for the checkout endpoint.",
+                "title": "Payload de Criação de Assinatura",
+                "description": "Payload completo para o endpoint de checkout.",
                 "required": [
                     "plan_id",
-                    "email",
-                    "price_paid"
+                    "email"
                 ],
                 "properties": {
                     "coupon": {
@@ -688,21 +803,19 @@
                     "id": {
                         "type": "integer"
                     },
-                    "card_number": {
-                        "type": "string"
-                    },
                     "client_name": {
-                        "type": "string"
-                    },
-                    "expire_date": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "cvc": {
                         "type": "string"
                     },
                     "card_flag_id": {
                         "type": "integer"
+                    },
+                    "card_flag": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CardFlag"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -824,11 +937,6 @@
                         "example": 1,
                         "nullable": true
                     },
-                    "price_paid": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 99.9
-                    },
                     "active": {
                         "type": "boolean",
                         "example": true
@@ -874,6 +982,11 @@
                         "format": "email",
                         "example": "user@example.com"
                     },
+                    "price_paid": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 99.9
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time"
@@ -881,6 +994,14 @@
                     "updated_at": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "card": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Card"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -890,23 +1011,23 @@
     "tags": [
         {
             "name": "CardFlags",
-            "description": "Endpoints for retrieving card brands (e.g., Visa, Mastercard)"
+            "description": "Endpoints para buscar bandeiras de cartão (ex: Visa, Mastercard)"
         },
         {
             "name": "Coupons",
-            "description": "Endpoints for managing and validating discount coupons"
+            "description": "Endpoints para gerenciar e validar cupons de desconto"
         },
         {
             "name": "Payments",
-            "description": "Endpoints for processing subsequent payments on existing subscriptions"
+            "description": "Endpoints para processar pagamentos subsequentes em assinaturas existentes"
         },
         {
             "name": "Plans",
-            "description": "Endpoints for retrieving subscription plans"
+            "description": "Endpoints para buscar planos de assinatura"
         },
         {
             "name": "Subscriptions",
-            "description": "Endpoints for creating and managing subscriptions and payments."
+            "description": "Endpoints para criar e gerenciar assinaturas."
         }
     ]
 }

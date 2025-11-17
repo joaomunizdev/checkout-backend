@@ -14,7 +14,8 @@ use OA;
  * description="Card Model (includes sensitive data)",
  * @OA\Property(property="id", type="integer"),
  * @OA\Property(property="client_name", type="string"),
- * @OA\Property(property="card_flag_id", type="integer")
+ * @OA\Property(property="card_flag_id", type="integer"),
+ * @OA\Property(property="card_flag", ref="#/components/schemas/CardFlag", nullable=true),
  * )
  */
 class Card extends Model

@@ -20,7 +20,8 @@ use OA;
  * @OA\Property(property="email", type="string", format="email", example="user@example.com"),
  * @OA\Property(property="price_paid", type="number", format="float", example=99.90),
  * @OA\Property(property="created_at", type="string", format="date-time"),
- * @OA\Property(property="updated_at", type="string", format="date-time")
+ * @OA\Property(property="updated_at", type="string", format="date-time"),
+ * @OA\Property(property="card", ref="#/components/schemas/Card", nullable=true),
  * )
  */
 class Transaction extends Model

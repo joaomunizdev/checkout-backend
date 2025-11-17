@@ -2,56 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use OA;
+use OpenApi\Attributes as OA;
 use Exception;
 
 /**
  * @OA\Tag(
  * name="Subscriptions",
- * description="Endpoints for creating and managing subscriptions and payments."
+ * description="Endpoints para criar e gerenciar assinaturas."
  * )
- *
- *
- *
- * @OA\Schema(
- * schema="CardResponse",
- * title="Card",
- * description="Card details (partial, no sensitive data)",
- * @OA\Property(property="id", type="integer", example=1),
- * @OA\Property(property="client_name", type="string", example="JOAO DA SILVA"),
- * @OA\Property(property="last_4_digits", type="string", example="4123"),
- * @OA\Property(property="expire_date", type="string", format="date", example="2028-12-31"),
- * @OA\Property(property="card_flag_id", type="integer", example=1)
- * )
- *
- *
  *
  * @OA\Schema(
  * schema="SubscriptionWithRelations",
- * title="Subscription",
- * description="Subscription with all related details (plan, coupon, transaction)",
+ * title="Assinatura com Relações",
+ * description="Assinatura com todos os detalhes relacionados (plano, cupom, transação)",
  * allOf={@OA\Schema(ref="#/components/schemas/Subscription")},
  * @OA\Property(property="plan", ref="#/components/schemas/Plan"),
- * @OA\Property(property="coupon", ref="#/components/schemas/Coupon"),
- * @OA\Property(property="transaction", ref="#/components/schemas/Transaction")
+ * @OA\Property(property="coupon", ref="#/components/schemas/Coupon", nullable=true),
+ * @OA\Property(
+ * property="transaction",
+ * type="array",
+ * @OA\Items(ref="#/components/schemas/Transaction")
+ * )
  * )
  *
  * @OA\Schema(
- * schema="ErrorResponse",
- * title="Error Response",
- * description="Standard error response for 422",
- * @OA\Property(property="message", type="string", example="Payment declined.")
+ * schema="SimpleErrorResponse",
+ * title="Resposta de Erro Simples",
+ * description="Resposta de erro simples",
+ * @OA\Property(property="message", type="string", example="Mensagem de erro.")
  * )
  *
+
  * @OA\Schema(
  * schema="StoreSubscriptionPayload",
- * title="Subscription Creation Payload",
- * description="Full payload for the checkout endpoint.",
+ * title="Payload de Criação de Assinatura",
+ * description="Payload completo para o endpoint de checkout.",
  * required={"plan_id", "email"},
  * @OA\Property(property="coupon", type="string", nullable=true, example="OFF10"),
  * @OA\Property(property="plan_id", type="integer", example=1),
@@ -64,11 +53,11 @@ class SubscriptionsController extends Controller
      * @OA\Get(
      * path="/api/subscriptions",
      * tags={"Subscriptions"},
-     * summary="List all subscriptions",
-     * description="Returns a list of all subscriptions with their relationships.",
+     * summary="Listar todas as assinaturas",
+     * description="Retorna uma lista de todas as assinaturas com seus relacionamentos.",
      * @OA\Response(
      * response=200,
-     * description="Subscription list",
+     * description="Lista de assinaturas",
      * @OA\JsonContent(
      * type="array",
      * @OA\Items(ref="#/components/schemas/SubscriptionWithRelations")
@@ -94,11 +83,11 @@ class SubscriptionsController extends Controller
      * @OA\Get(
      * path="/api/subscriptions/create",
      * tags={"Subscriptions"},
-     * summary="Shows the payload format for creating a signature.",
-     * description="Returns a sample JSON showing the fields required for the endpoint. 'store'.",
+     * summary="Mostra o formato do payload para criar uma assinatura.",
+     * description="Retorna um JSON de exemplo mostrando os campos necessários para o endpoint 'store'.",
      * @OA\Response(
      * response=200,
-     * description="Payload example",
+     * description="Exemplo de payload",
      * @OA\JsonContent(
      * type="object",
      * @OA\Property(property="payload_format", type="object",
@@ -113,8 +102,8 @@ class SubscriptionsController extends Controller
     public function create()
     {
         $payload = [
-            'coupon' => '(Optional) Coupon code, e.g., "SAVE30"',
-            'plan_id' => 'ID (int) of the desired plan',
+            'coupon' => '(Opcional) Código do cupom, ex: "SAVE30"',
+            'plan_id' => 'ID (int) do plano desejado',
             'email' => 'email@example.com',
         ];
 
@@ -127,13 +116,13 @@ class SubscriptionsController extends Controller
      * @OA\Post(
      * path="/api/subscriptions",
      * tags={"Subscriptions"},
-     * summary="Create a new subscription (Checkout)",
-     * description="It receives the plan, customer, and card details; validates the coupon; processes the payment; and creates the subscription, card, and transaction.",
+     * summary="Criar uma nova assinatura (Checkout - Passo 1)",
+     * description="Recebe o plano, cliente e cupom. Valida o cupom e cria a assinatura inicial (ainda inativa).",
      * @OA\Parameter(
      * name="Idempotency-Key",
      * in="header",
      * required=true,
-     * description="A unique key (UUID) is used to ensure that the request is processed only once (prevents duplicate charges).",
+     * description="Uma chave única (UUID) usada para garantir que a requisição seja processada apenas uma vez.",
      * @OA\Schema(
      * type="string",
      * format="uuid",
@@ -142,19 +131,41 @@ class SubscriptionsController extends Controller
      * ),
      *
      * @OA\RequestBody(
-     * description="Subscription and payment details",
+     * description="Detalhes da assinatura",
      * required=true,
      * @OA\JsonContent(ref="#/components/schemas/StoreSubscriptionPayload")
      * ),
      * @OA\Response(
      * response=201,
-     * description="Signature created successfully.",
+     * description="Assinatura criada com sucesso.",
      * @OA\JsonContent(ref="#/components/schemas/Subscription")
      * ),
      * @OA\Response(
      * response=422,
-     * description="Validation error, payment failure, missing Idempotency-Key, duplicate Idempotency-Key validation, and coupon verification.",
-     * @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     * description="Erro de validação (Ex: email duplicado) ou erro de regra (Ex: cupom inválido).",
+     * @OA\JsonContent(
+     * oneOf={
+     * @OA\Schema(ref="#/components/schemas/ValidationErrorResponse"),
+     * @OA\Schema(ref="#/components/schemas/SimpleErrorResponse")
+     * },
+     * @OA\Examples(
+     * example="validationError",
+     * summary="Erro de Validação (Laravel $validate)",
+     * value={
+     * "message": "Os dados fornecidos são inválidos.",
+     * "errors": {
+     * "email": {"Este e-mail já possui uma assinatura. Por favor, utilize outro e-mail."}
+     * }
+     * }
+     * ),
+     * @OA\Examples(
+     * example="couponError",
+     * summary="Erro de Regra (Serviço/Exception)",
+     * value={
+     * "message": "Este cupom já expirou."
+     * }
+     * )
+     * )
      * )
      * )
      */
@@ -201,23 +212,24 @@ class SubscriptionsController extends Controller
      * @OA\Get(
      * path="/api/subscriptions/{id}",
      * tags={"Subscriptions"},
-     * summary="Search for a specific subscription",
-     * description="Returns the data for a subscription and its relationships..",
+     * summary="Buscar uma assinatura específica",
+     * description="Retorna os dados de uma assinatura e seus relacionamentos.",
      * @OA\Parameter(
      * name="id",
      * in="path",
      * required=true,
-     * description="Subscription ID",
-     * @OA\Schema(type="integer")
+     * description="ID da Assinatura",
+     * @OA\Schema(type="integer", example=1)
      * ),
      * @OA\Response(
      * response=200,
-     * description="Subscription details",
+     * description="Detalhes da assinatura",
      * @OA\JsonContent(ref="#/components/schemas/SubscriptionWithRelations")
      * ),
      * @OA\Response(
      * response=404,
-     * description="Signature not found (returns standard Laravel JSON 404)"
+     * description="Assinatura não encontrada.",
+     * @OA\JsonContent(ref="#/components/schemas/SimpleErrorResponse")
      * )
      * )
      */
