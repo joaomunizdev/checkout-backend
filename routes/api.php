@@ -8,7 +8,7 @@ use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\SubscriptionsController;
 
-Route::get('/', function () {
+Route::get('/health', function () {
     return ["Checkout API ON..."];
 });
 
