@@ -123,7 +123,7 @@ Com o Docker em execução, execute o seguinte comando na raiz do projeto:
 ### 6. Acesso ao projeto
 
 ```bash
-    http://localhost:8000
+    http://localhost:8000/api/health
 ```
 
 ### 7. Acesso a documentação da API
