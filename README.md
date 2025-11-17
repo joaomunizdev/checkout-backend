@@ -47,6 +47,31 @@ Este guia descreve como executar este projeto utilizando um ambiente de desenvol
 
 ---
 
+### Planos
+
+-   **BASIC_MONTHLY**: R$ 49,90/mês
+-   **BASIC_YEARLY**: R$ 499,00/ano
+-   **PRO_MONTHLY**: R$ 99,90/mês
+-   **PRO_YEARLY**: R$ 999,00/ano
+
+### Cupons
+
+-   **OFF10**: Concede desconto de 10% em qualquer periodicidade, sem limite de usos, sem data de expiração.
+-   **SAVE30**: Concede desconto de R$30,00 no plano PRO mensal, válido por apenas 5 dias e limite de 2 usos.
+-   **YEAR20**: Concede desconto de 20% nos planos anuais, válido por apenas 30 dias e limite de 5 usos.
+-   **EXPIRED5**: Concede desconto de R$5,00 em qualquer periodicidade, sem limite de usos e expirado (para testar erro).
+
+### Regras de Cálculo
+
+-   Arredondamento sempre ao centavo _half-up_ (quando aplicável).
+
+### Gateway Simulado
+
+-   Regras de simulação:
+    -   Aprovar transações de cartões que comecem com o número **5**.
+    -   Negar transações de cartões que comecem com o número **4**.
+    -   Randomizar resultado de cartões que comecem com o número **3** (70% aprovar / 30% negar).
+
 ## Testes Automatizados
 
 -   **Unit Tests**: validam a lógica dos serviços, rotas e controllers.
