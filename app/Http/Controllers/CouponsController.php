@@ -5,29 +5,39 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
-use OA;
+use OpenApi\Attributes as OA;
 
 /**
  * @OA\Tag(
  * name="Coupons",
- * description="Endpoints for managing and validating discount coupons"
+ * description="Endpoints para gerenciar e validar cupons de desconto"
  * )
  *
  * @OA\Schema(
  * schema="CouponValidationPayload",
  * title="Coupon Validation Payload",
- * description="Payload required to validate a coupon",
- * required={"coupon", "plan_id"},
- * @OA\Property(property="coupon", type="string", description="The coupon code to validate", example="SAVE30"),
- * @OA\Property(property="plan_id", type="integer", description="The ID of the plan this coupon will be applied to", example=1)
+ * description="Payload necessário para validar um cupom",
+ * required={"coupon"},
+ * @OA\Property(property="coupon", type="string", description="O código do cupom para validar", example="OFF10"),
+ * @OA\Property(property="plan_id", type="integer", description="O ID do plano ao qual este cupom será aplicado", example=1)
  * )
  *
  * @OA\Schema(
  * schema="CouponValidationSuccess",
- * title="Coupon Validation Success",
- * description="Successful response for a valid coupon",
+ * title="Sucesso na Validação do Cupom",
+ * description="Resposta de sucesso para um cupom válido",
  * @OA\Property(property="valid", type="boolean", example=true),
- * @OA\Property(property="message", type="string", example="Valid coupon!")
+ * @OA\Property(property="message", type="string", example="Cupom válido!")
+ * )
+ *
+ * @OA\Schema(
+ * schema="CouponValidationFailure",
+ * title="Falha na Validação do Cupom",
+ * description="Resposta de falha para um cupom inválido (regra de negócio)",
+ * @OA\Property(property="valid", type="boolean", example=false),
+ * @OA\Property(property="message", type="string", example="Este cupom já expirou.")
+ * )
+ *
  * )
  */
 class CouponsController extends Controller
@@ -36,11 +46,11 @@ class CouponsController extends Controller
      * @OA\Get(
      * path="/api/coupons",
      * tags={"Coupons"},
-     * summary="List all coupons",
-     * description="Retrieves a complete list of all available coupons in the system.",
+     * summary="Listar todos os cupons",
+     * description="Recupera uma lista completa de todos os cupons disponíveis no sistema.",
      * @OA\Response(
      * response=200,
-     * description="A list of all coupons",
+     * description="Uma lista de todos os cupons",
      * @OA\JsonContent(
      * type="array",
      * @OA\Items(ref="#/components/schemas/Coupon")
@@ -57,30 +67,28 @@ class CouponsController extends Controller
 
     /**
      * @OA\Get(
-     * path="/api/coupons/{id}",
+     * path="/api/coupons/{value}",
      * tags={"Coupons"},
-     * summary="Get coupons applicable to a specific plan",
-     * description="Finds coupons that are either specific to the given Plan ID or are global (plan_id = null). Note: The {id} in the path refers to the Plan ID.",
+     * summary="Obter cupons pelo nome",
+     * description="Encontra cupom pelo nome",
      * @OA\Parameter(
-     * name="id",
+     * name="value",
      * in="path",
      * required=true,
-     * description="The ID of the Plan to check for coupons",
-     * @OA\Schema(type="integer")
+     * description="O nome do cupom para verificar dados do cupom",
+     * @OA\Schema(type="string", example="OFF10")
      * ),
      * @OA\Response(
      * response=200,
-     * description="A list of applicable coupons",
-     * @OA\JsonContent(
-     * type="array",
-     * @OA\Items(ref="#/components/schemas/Coupon")
-     * )
+     * description="Detalhes do cupom",
+     * @OA\JsonContent(ref="#/components/schemas/Coupon")
+     * ),
      * )
      * )
      */
-    public function showByPlanId(int $id)
+    public function showByPlanId(string $value)
     {
-        $coupon = Coupon::where('plan_id', '=', $id)->orWhereNull('plan_id')->get();
+        $coupon = Coupon::where('name', 'like', $value)->get();
 
         return response()->json($coupon);
     }
@@ -89,22 +97,45 @@ class CouponsController extends Controller
      * @OA\Post(
      * path="/api/coupons-validate",
      * tags={"Coupons"},
-     * summary="Validate a coupon",
-     * description="Checks if a coupon is valid based on its code, associated plan, expiration, and usage limits.",
+     * summary="Validar um cupom",
+     * description="Verifica se um cupom é válido com base em seu código, plano associado, expiração e limites de uso.",
      * @OA\RequestBody(
-     * description="Coupon and Plan ID to validate",
+     * description="Cupom e ID do Plano para validar",
      * required=true,
      * @OA\JsonContent(ref="#/components/schemas/CouponValidationPayload")
      * ),
      * @OA\Response(
      * response=200,
-     * description="Coupon is valid",
+     * description="Cupom é válido",
      * @OA\JsonContent(ref="#/components/schemas/CouponValidationSuccess")
      * ),
      * @OA\Response(
      * response=422,
-     * description="Validation error or coupon is invalid (expired, limit reached, etc.)",
-     * @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     * description="Erro de validação (Ex: cupom não existe) ou cupom inválido (Ex: expirado).",
+     * @OA\JsonContent(
+     * oneOf={
+     * @OA\Schema(ref="#/components/schemas/ValidationErrorResponse"),
+     * @OA\Schema(ref="#/components/schemas/CouponValidationFailure")
+     * },
+     * @OA\Examples(
+     * example="validationError",
+     * summary="Erro de Validação (Laravel $validate)",
+     * value={
+     * "message": "Os dados fornecidos são inválidos.",
+     * "errors": {
+     * "coupon": {"O cupom selecionado é inválido."}
+     * }
+     * }
+     * ),
+     * @OA\Examples(
+     * example="couponInvalid",
+     * summary="Erro de Regra (Serviço)",
+     * value={
+     * "valid": false,
+     * "message": "Este cupom já expirou."
+     * }
+     * )
+     * )
      * )
      * )
      */

@@ -23,7 +23,7 @@ Route::controller(CardFlagsController::class)->group(function () {
 });
 
 Route::controller(CouponsController::class)->group(function () {
-    Route::get('/coupons/{id}', 'showByPlanId');
+    Route::get('/coupons/{value}', 'showByPlanId');
     Route::get('/coupons', 'index');
     Route::post('/coupons-validate', 'validateCoupon');
 });
